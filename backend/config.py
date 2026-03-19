@@ -7,8 +7,8 @@ class Settings(BaseSettings):
     # law.go.kr API
     law_api_base: str = "http://www.law.go.kr/DRF"
     law_api_oc: str = "hyominapi"
-    law_api_rate_limit: int = 3  # max concurrent requests
-    law_api_delay: float = 0.5  # seconds between batches
+    law_api_rate_limit: int = 10  # max concurrent requests
+    law_api_delay: float = 0.2  # seconds between batches
 
     # Database
     db_path: Path = Path(__file__).parent.parent / "data" / "machu-picchu.db"

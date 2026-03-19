@@ -25,6 +25,7 @@ class Case(Base):
     reference_articles: Mapped[str | None] = mapped_column(Text)  # 참조조문
     reference_cases: Mapped[str | None] = mapped_column(Text)  # 참조판례
     full_text: Mapped[str | None] = mapped_column(Text)  # 판례내용
+    parsed_outcome: Mapped[str | None] = mapped_column(String)  # 원고승/원고패/일부인용/파기환송/상고기각 등
     has_judge_info: Mapped[bool] = mapped_column(Boolean, default=False)
     detail_fetched: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
