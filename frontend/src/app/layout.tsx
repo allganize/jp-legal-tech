@@ -41,6 +41,12 @@ export default function RootLayout({
                   &#9878; 판사 분석
                 </a>
                 <a
+                  href="/venue"
+                  className="px-3 py-1.5 text-sm rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition-colors"
+                >
+                  &#9878; 관할 최적화
+                </a>
+                <a
                   href="/regulation"
                   className="px-3 py-1.5 text-sm rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition-colors"
                 >

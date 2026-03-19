@@ -1,7 +1,14 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
+const DEFAULT_HEADERS: Record<string, string> = {
+  "ngrok-skip-browser-warning": "true",
+};
+
 async function fetchApi<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
+  const res = await fetch(`${API_BASE}${path}`, {
+    cache: "no-store",
+    headers: DEFAULT_HEADERS,
+  });
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json();
 }
@@ -140,7 +147,7 @@ export async function reviewDocument(
 ): Promise<void> {
   const res = await fetch(`${API_BASE}/agent/${judgeId}/review`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...DEFAULT_HEADERS },
     body: JSON.stringify({ document }),
   });
   if (!res.ok) {
@@ -161,7 +168,7 @@ export async function reviseDocument(
 ): Promise<void> {
   const res = await fetch(`${API_BASE}/agent/${judgeId}/revise`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...DEFAULT_HEADERS },
     body: JSON.stringify({ document, feedback }),
   });
   if (!res.ok) {
@@ -283,7 +290,7 @@ export async function generateRegulationDocument(
 ): Promise<void> {
   const res = await fetch(`${API_BASE}/regulation/generate`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...DEFAULT_HEADERS },
     body: JSON.stringify({
       regulation_id: regulationId,
       client_id: clientId,
@@ -300,7 +307,105 @@ export async function generateRegulationDocument(
 }
 
 export async function seedRegulationData(): Promise<void> {
-  await fetch(`${API_BASE}/regulation/seed`, { method: "POST" });
+  await fetch(`${API_BASE}/regulation/seed`, { method: "POST", headers: DEFAULT_HEADERS });
+}
+
+// ── 관할 최적화 타입 ──────────────────────────────────────
+
+export interface CourtSummary {
+  court_name: string;
+  total_cases: number;
+  acceptance_rate: number | null;
+  classified_cases: number;
+}
+
+export interface CourtJudgeSummary {
+  judge_id: number;
+  name: string;
+  case_count: number;
+  acceptance_rate: number;
+  dismissal_rate: number;
+  decision_type_distribution: Distribution[];
+}
+
+export interface CourtStats {
+  court_name: string;
+  total_cases: number;
+  date_range: { min: string | null; max: string | null };
+  acceptance_rate: number;
+  dismissal_rate: number;
+  unclassified_rate: number;
+  outcome_distribution: Distribution[];
+  decision_type_distribution: Distribution[];
+  case_type_distribution: Distribution[];
+  yearly_distribution: Distribution[];
+  top_judges: CourtJudgeSummary[];
+  rank?: number;
+}
+
+export interface CourtComparison {
+  courts: CourtStats[];
+  case_type: string | null;
+}
+
+// ── 관할 최적화 API ──────────────────────────────────────
+
+export function getVenueCaseTypes(): Promise<Distribution[]> {
+  return fetchApi("/venue/case-types");
+}
+
+export function getVenueCourts(caseType?: string): Promise<CourtSummary[]> {
+  const params = new URLSearchParams();
+  if (caseType) params.set("case_type", caseType);
+  const qs = params.toString();
+  return fetchApi(`/venue/courts${qs ? `?${qs}` : ""}`);
+}
+
+export function getCourtStats(
+  courtName: string,
+  caseType?: string
+): Promise<CourtStats> {
+  const params = new URLSearchParams({ court: courtName });
+  if (caseType) params.set("case_type", caseType);
+  return fetchApi(`/venue/court-stats?${params}`);
+}
+
+export async function compareVenueCourts(
+  courtNames: string[],
+  caseType?: string
+): Promise<CourtComparison> {
+  const res = await fetch(`${API_BASE}/venue/compare`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...DEFAULT_HEADERS },
+    body: JSON.stringify({ court_names: courtNames, case_type: caseType || null }),
+  });
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}
+
+export async function getVenueRecommendation(
+  caseType: string,
+  courtNames: string[] | null,
+  caseDescription: string | null,
+  onChunk: (text: string) => void,
+  onDone: () => void,
+  onError: (error: string) => void
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/venue/recommend`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...DEFAULT_HEADERS },
+    body: JSON.stringify({
+      case_type: caseType,
+      court_names: courtNames,
+      case_description: caseDescription,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "서버 오류" }));
+    onError(err.detail || `API error: ${res.status}`);
+    return;
+  }
+  await consumeSSE(res, onChunk, onDone, onError);
 }
 
 // ── 판사 분석 API ──────────────────────────────────────────
@@ -336,9 +441,9 @@ export function getCollectionStatus(): Promise<CollectionStatus> {
 }
 
 export async function startCollection(phase: string): Promise<void> {
-  await fetch(`${API_BASE}/collection/start/${phase}`, { method: "POST" });
+  await fetch(`${API_BASE}/collection/start/${phase}`, { method: "POST", headers: DEFAULT_HEADERS });
 }
 
 export async function stopCollection(): Promise<void> {
-  await fetch(`${API_BASE}/collection/stop`, { method: "POST" });
+  await fetch(`${API_BASE}/collection/stop`, { method: "POST", headers: DEFAULT_HEADERS });
 }

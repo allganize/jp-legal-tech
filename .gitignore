@@ -9,10 +9,10 @@ venv/
 node_modules/
 .next/
 
-# Data
-data/*.db
+# Data (DB tracked via Git LFS)
 data/*.db-journal
 data/*.db-wal
+data/*.db-shm
 
 # Environment
 .env
