@@ -52,27 +52,27 @@ export default function VenuePage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-800">
+        <h1 className="text-3xl font-semibold text-stone-900">
           관할/재판부 최적화 추천
         </h1>
-        <p className="text-slate-500 mt-2">
+        <p className="text-stone-500 mt-2">
           사건 유형을 선택하면 법원별 판결 통계를 비교할 수 있습니다.
           법원을 2~5개 선택하여 상세 비교하세요.
         </p>
       </div>
 
       {/* Case Type Selector */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <label className="block text-sm font-medium text-slate-700 mb-2">
+      <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
+        <label className="block text-sm font-medium text-stone-700 mb-2">
           사건 유형 선택
         </label>
         <select
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value)}
-          className="w-full max-w-md border border-slate-200 rounded-lg px-4 py-2.5 text-slate-700 bg-white"
+          className="w-full max-w-md border border-stone-200 rounded-lg px-4 py-2.5 text-stone-700 bg-white"
         >
           <option value="">사건 유형을 선택하세요</option>
           {caseTypes.map((ct) => (
@@ -85,52 +85,52 @@ export default function VenuePage() {
 
       {/* Court Grid */}
       {loading && (
-        <div className="text-center py-12 text-slate-400">로딩중...</div>
+        <div className="text-center py-12 text-stone-400">로딩중...</div>
       )}
 
       {!loading && courts.length > 0 && (
         <>
           {/* Compare Button */}
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-stone-500">
               {courts.length}개 법원 | {selected.size}개 선택됨
             </p>
             <button
               onClick={goCompare}
               disabled={selected.size < 2}
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
               선택 법원 비교하기 ({selected.size}/2~5)
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {courts.map((court) => {
               const isSelected = selected.has(court.court_name);
               return (
                 <button
                   key={court.court_name}
                   onClick={() => toggle(court.court_name)}
-                  className={`text-left bg-white rounded-xl shadow-sm border-2 p-5 transition-all hover:shadow-md ${
+                  className={`text-left bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border-2 p-6 transition-all hover:shadow-md ${
                     isSelected
-                      ? "border-blue-500 ring-2 ring-blue-100"
-                      : "border-slate-200 hover:border-slate-300"
+                      ? "border-emerald-500 ring-2 ring-emerald-100"
+                      : "border-stone-200 hover:border-stone-300"
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-slate-800">
+                      <h3 className="font-semibold text-stone-900">
                         {court.court_name}
                       </h3>
-                      <p className="text-sm text-slate-500 mt-1">
+                      <p className="text-sm text-stone-500 mt-1">
                         {selectedType} 관련 판결
                       </p>
                     </div>
                     <div
                       className={`w-5 h-5 rounded border-2 flex items-center justify-center transition ${
                         isSelected
-                          ? "bg-blue-600 border-blue-600"
-                          : "border-slate-300"
+                          ? "bg-emerald-600 border-emerald-600"
+                          : "border-stone-300"
                       }`}
                     >
                       {isSelected && (
@@ -152,14 +152,14 @@ export default function VenuePage() {
                   </div>
                   <div className="mt-4 flex items-end justify-between">
                     <div>
-                      <span className="text-3xl font-bold text-slate-800">
+                      <span className="text-3xl font-semibold font-mono text-stone-900">
                         {court.total_cases}
                       </span>
-                      <span className="text-sm text-slate-500 ml-1">건</span>
+                      <span className="text-sm text-stone-500 ml-1">건</span>
                     </div>
                     {court.acceptance_rate != null && court.classified_cases > 0 && (
                       <div className="text-right">
-                        <div className={`text-lg font-bold ${
+                        <div className={`text-lg font-semibold font-mono ${
                           court.acceptance_rate >= 50
                             ? "text-emerald-600"
                             : court.acceptance_rate >= 30
@@ -168,7 +168,7 @@ export default function VenuePage() {
                         }`}>
                           {court.acceptance_rate}%
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className="text-[10px] text-stone-400">
                           승소율 ({court.classified_cases}건)
                         </div>
                       </div>
@@ -182,7 +182,7 @@ export default function VenuePage() {
       )}
 
       {!loading && selectedType && courts.length === 0 && (
-        <div className="text-center py-12 text-slate-400">
+        <div className="text-center py-12 text-stone-400">
           해당 사건 유형의 판결 데이터가 없습니다
         </div>
       )}

@@ -20,11 +20,11 @@ import {
 } from "recharts";
 
 const COLORS = [
-  "#3b82f6",
+  "#059669",
   "#ef4444",
-  "#10b981",
   "#f59e0b",
-  "#8b5cf6",
+  "#0891b2",
+  "#78716c",
 ];
 
 // 법률 용어 → 일반 용어 매핑
@@ -45,7 +45,7 @@ function toLabel(outcome: string): string {
 
 export default function VenueComparePage() {
   return (
-    <Suspense fallback={<div className="text-center py-20 text-slate-400">로딩중...</div>}>
+    <Suspense fallback={<div className="text-center py-20 text-stone-400">로딩중...</div>}>
       <VenueCompareContent />
     </Suspense>
   );
@@ -96,10 +96,10 @@ function VenueCompareContent() {
 
   if (courtNames.length < 2) {
     return (
-      <div className="text-center py-20 text-slate-400">
+      <div className="text-center py-20 text-stone-400">
         비교할 법원을 2개 이상 선택해 주세요.
         <br />
-        <Link href="/venue" className="text-blue-600 underline mt-2 inline-block">
+        <Link href="/venue" className="text-emerald-600 underline mt-2 inline-block">
           법원 선택으로 돌아가기
         </Link>
       </div>
@@ -107,7 +107,7 @@ function VenueCompareContent() {
   }
 
   if (loading) {
-    return <div className="text-center py-20 text-slate-400">통계 로딩중...</div>;
+    return <div className="text-center py-20 text-stone-400">통계 로딩중...</div>;
   }
 
   // Build comparison bar chart data for parsed outcomes (미분류 제외, 라벨 변환)
@@ -137,48 +137,48 @@ function VenueCompareContent() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <Link
             href="/venue"
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-emerald-600 hover:underline"
           >
             &larr; 법원 선택
           </Link>
-          <h1 className="text-3xl font-bold text-slate-800 mt-2">
+          <h1 className="text-3xl font-semibold text-stone-900 mt-2">
             관할 법원 비교
           </h1>
-          <p className="text-slate-500 mt-1">
-            사건유형: <span className="font-medium text-slate-700">{caseType}</span>
+          <p className="text-stone-500 mt-1">
+            사건유형: <span className="font-medium text-stone-700">{caseType}</span>
           </p>
         </div>
       </div>
 
       {/* Rate Cards */}
-      <div className={`grid gap-4 ${courts.length === 2 ? "grid-cols-2" : courts.length === 3 ? "grid-cols-3" : "grid-cols-2 lg:grid-cols-4"}`}>
+      <div className={`grid gap-6 ${courts.length === 2 ? "grid-cols-2" : courts.length === 3 ? "grid-cols-3" : "grid-cols-2 lg:grid-cols-4"}`}>
         {courts.map((court, i) => (
           <div
             key={court.court_name}
-            className={`bg-white rounded-xl shadow-sm border-2 p-6 ${
+            className={`bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border-2 p-6 ${
               court.rank === 1
                 ? "border-emerald-400 ring-2 ring-emerald-50"
-                : "border-slate-200"
+                : "border-stone-200"
             }`}
           >
             {court.rank === 1 && (
-              <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
                 가장 유리한 법원
               </span>
             )}
-            <h3 className="font-semibold text-slate-800 mt-2">
+            <h3 className="font-semibold text-stone-900 mt-2">
               {court.court_name}
             </h3>
             <div className="mt-4 space-y-3">
               <div>
                 <div
-                  className={`text-4xl font-bold ${
+                  className={`text-4xl font-semibold font-mono ${
                     court.acceptance_rate >= 50
                       ? "text-emerald-600"
                       : court.acceptance_rate >= 30
@@ -188,7 +188,7 @@ function VenueCompareContent() {
                 >
                   {court.acceptance_rate}%
                 </div>
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-stone-500">
                   승소율
                   {(() => {
                     const classified = (court.outcome_distribution || [])
@@ -198,18 +198,18 @@ function VenueCompareContent() {
                   })()}
                 </div>
               </div>
-              <div className="flex gap-4 text-sm">
+              <div className="flex gap-6 text-sm">
                 <div>
                   <span className="font-medium text-red-600">
                     {court.dismissal_rate}%
                   </span>
-                  <span className="text-slate-400 ml-1">패소율</span>
+                  <span className="text-stone-400 ml-1">패소율</span>
                 </div>
                 <div>
-                  <span className="font-medium text-slate-700">
+                  <span className="font-medium font-mono text-stone-700">
                     {court.total_cases}
                   </span>
-                  <span className="text-slate-400 ml-1">건</span>
+                  <span className="text-stone-400 ml-1">건</span>
                 </div>
               </div>
               {(court.unclassified_rate || 0) >= 80 && (
@@ -218,7 +218,7 @@ function VenueCompareContent() {
                 </p>
               )}
               {(court.unclassified_rate || 0) >= 20 && (court.unclassified_rate || 0) < 80 && (
-                <p className="text-xs text-slate-500 bg-slate-50 rounded px-2 py-1">
+                <p className="text-xs text-stone-500 bg-stone-50 rounded px-2 py-1">
                   미분류 {court.unclassified_rate}%
                 </p>
               )}
@@ -233,11 +233,11 @@ function VenueCompareContent() {
       </div>
 
       {/* Outcome Comparison Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-800 mb-1">
+      <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
+        <h2 className="text-lg font-semibold text-stone-900 mb-1">
           판결 결과 비교
         </h2>
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-stone-400 mb-4">
           각 법원에서 승소·패소·일부 승소 등 판결 결과가 몇 건인지 비교합니다.
         </p>
         {outcomeChartData.length > 0 ? (
@@ -258,18 +258,18 @@ function VenueCompareContent() {
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-[350px] flex items-center justify-center text-slate-400">
+          <div className="h-[350px] flex items-center justify-center text-stone-400">
             데이터 없음
           </div>
         )}
       </div>
 
       {/* Yearly Trend Comparison */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-800 mb-1">
+      <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
+        <h2 className="text-lg font-semibold text-stone-900 mb-1">
           연도별 판결 추이 비교
         </h2>
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-stone-400 mb-4">
           각 법원의 연도별 판결 건수 추이를 비교합니다.
         </p>
         {yearlyChartData.length > 0 ? (
@@ -290,7 +290,7 @@ function VenueCompareContent() {
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-[300px] flex items-center justify-center text-slate-400">
+          <div className="h-[300px] flex items-center justify-center text-stone-400">
             데이터 없음
           </div>
         )}
@@ -301,9 +301,9 @@ function VenueCompareContent() {
         {courts.map((court) => (
           <div
             key={court.court_name}
-            className="bg-white rounded-xl shadow-sm border border-slate-200 p-6"
+            className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6"
           >
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">
+            <h3 className="text-lg font-semibold text-stone-900 mb-4">
               {court.court_name} 주요 판사
             </h3>
             {court.top_judges.length > 0 ? (
@@ -312,13 +312,13 @@ function VenueCompareContent() {
                   <Link
                     key={judge.judge_id}
                     href={`/judge/${judge.judge_id}`}
-                    className="block p-3 rounded-lg hover:bg-slate-50 transition border border-slate-100"
+                    className="block p-3 rounded-lg hover:bg-stone-50 transition border border-stone-100"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-slate-800">
+                      <span className="font-medium text-stone-800">
                         {judge.name}
                       </span>
-                      <span className="text-sm text-slate-500">
+                      <span className="text-sm text-stone-500">
                         {judge.case_count}건
                       </span>
                     </div>
@@ -334,27 +334,27 @@ function VenueCompareContent() {
                 ))}
               </div>
             ) : (
-              <p className="text-slate-400 text-sm">판사 데이터 없음</p>
+              <p className="text-stone-400 text-sm">판사 데이터 없음</p>
             )}
           </div>
         ))}
       </div>
 
       {/* Methodology */}
-      <div className="bg-slate-50 rounded-xl border border-slate-200 p-6">
+      <div className="bg-stone-50 rounded-2xl border border-stone-200 p-6">
         <details>
-          <summary className="cursor-pointer text-sm font-semibold text-slate-600 hover:text-slate-800">
+          <summary className="cursor-pointer text-sm font-semibold text-stone-600 hover:text-stone-800">
             분석 근거 및 방법론
           </summary>
-          <div className="mt-4 space-y-4 text-sm text-slate-600 leading-relaxed">
+          <div className="mt-4 space-y-4 text-sm text-stone-600 leading-relaxed">
             <div>
-              <h4 className="font-semibold text-slate-700 mb-1">데이터 출처</h4>
+              <h4 className="font-semibold text-stone-700 mb-1">데이터 출처</h4>
               <p>
                 대법원 판례 공개 시스템(law.go.kr)에서 수집한 판결문 원문을 규칙 기반으로 분석하여 산출합니다.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-700 mb-1">결과 분류 방법</h4>
+              <h4 className="font-semibold text-stone-700 mb-1">결과 분류 방법</h4>
               <ul className="space-y-1 ml-4 list-disc">
                 <li>
                   <span className="font-medium">승소</span>: 판결문 주문에 &quot;지급하라&quot;, &quot;인도하라&quot;, &quot;이행하라&quot;, &quot;취소한다&quot; 등 원고 청구를 받아들이는 표현이 포함된 경우
@@ -374,19 +374,19 @@ function VenueCompareContent() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-700 mb-1">승소율 계산</h4>
+              <h4 className="font-semibold text-stone-700 mb-1">승소율 계산</h4>
               <p>
                 승소율 = (승소 + 일부 승소 + 원심 파기) / 분류된 판결 수 &times; 100
               </p>
               <p>
                 패소율 = (패소 + 상고 기각 + 소 각하) / 분류된 판결 수 &times; 100
               </p>
-              <p className="text-slate-400 mt-1">
+              <p className="text-stone-400 mt-1">
                 ※ 판결문에서 결과를 파악할 수 없는 건(미분류)은 계산에서 제외됩니다.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-700 mb-1">한계 및 유의사항</h4>
+              <h4 className="font-semibold text-stone-700 mb-1">한계 및 유의사항</h4>
               <ul className="space-y-1 ml-4 list-disc">
                 <li>행정사건은 &quot;처분청 승소/패소&quot;로 명시되어 높은 정확도를 보입니다.</li>
                 <li>민사/형사 사건은 판결문 텍스트 파싱 기반으로, 복잡한 주문의 경우 미분류될 수 있습니다.</li>
@@ -400,11 +400,11 @@ function VenueCompareContent() {
       </div>
 
       {/* AI Recommendation */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-        <h2 className="text-xl font-bold text-slate-800 mb-2">
+      <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-8">
+        <h2 className="text-xl font-semibold text-stone-900 mb-2">
           AI 관할 추천
         </h2>
-        <p className="text-sm text-slate-500 mb-6">
+        <p className="text-sm text-stone-500 mb-6">
           통계 데이터를 기반으로 AI가 최적 관할 법원을 분석합니다.
           사건 개요를 입력하면 더 구체적인 추천을 받을 수 있습니다.
         </p>
@@ -413,7 +413,7 @@ function VenueCompareContent() {
         <div className="mb-4">
           <button
             onClick={() => setShowDescInput(!showDescInput)}
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-emerald-600 hover:underline"
           >
             {showDescInput ? "사건 개요 입력 숨기기" : "사건 개요 입력하기 (선택)"}
           </button>
@@ -423,7 +423,7 @@ function VenueCompareContent() {
               onChange={(e) => setCaseDescription(e.target.value)}
               placeholder="사건의 주요 쟁점, 청구 내용 등을 입력하세요..."
               rows={4}
-              className="mt-2 w-full border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-700 resize-y"
+              className="mt-2 w-full border border-stone-200 rounded-lg px-4 py-3 text-sm text-stone-700 resize-y"
             />
           )}
         </div>
@@ -431,22 +431,22 @@ function VenueCompareContent() {
         <button
           onClick={requestAI}
           disabled={aiLoading}
-          className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50"
+          className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 active:scale-[0.98] transition disabled:opacity-50"
         >
           {aiLoading ? "분석 중..." : "AI 관할 추천 받기"}
         </button>
 
         {/* AI Output */}
         {(aiText || aiLoading) && (
-          <div className="mt-6 p-6 bg-slate-50 rounded-lg border border-slate-200">
-            <div className="prose prose-slate prose-sm max-w-none">
+          <div className="mt-6 p-6 bg-stone-50 rounded-lg border border-stone-200">
+            <div className="prose prose-stone prose-sm max-w-none">
               <ReactMarkdown>{aiText}</ReactMarkdown>
               {aiLoading && (
-                <span className="inline-block w-2 h-4 bg-blue-500 animate-pulse ml-0.5" />
+                <span className="inline-block w-2 h-4 bg-emerald-500 animate-pulse ml-0.5" />
               )}
             </div>
             {aiDone && (
-              <p className="text-xs text-slate-400 mt-4 pt-4 border-t border-slate-200">
+              <p className="text-xs text-stone-400 mt-4 pt-4 border-t border-stone-200">
                 본 분석은 과거 판결 통계에 기반한 참고 자료이며, 실제 소송 결과를 보장하지 않습니다.
               </p>
             )}

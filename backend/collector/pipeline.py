@@ -110,14 +110,13 @@ class CollectionPipeline:
             self._running = False
             db.close()
 
-    async def run_detail_phase(self, batch_size: int = 50):
-        """Phase B: 상세 조회 (본문 가져오기)."""
+    async def run_detail_phase(self, batch_size: int = 200):
+        """Phase B: 상세 조회 (본문 가져오기) - 병렬."""
         self._running = True
         db = SessionLocal()
         try:
             async with aiohttp.ClientSession() as session:
                 while self._running:
-                    # Get cases without detail
                     cases = db.execute(
                         select(Case).where(Case.detail_fetched == False).limit(batch_size)  # noqa: E712
                     ).scalars().all()
@@ -126,11 +125,18 @@ class CollectionPipeline:
                         logger.info("Detail phase completed - no more cases to fetch")
                         break
 
-                    for case in cases:
-                        if not self._running:
-                            break
+                    # 병렬 fetch (semaphore가 동시 요청 수 제한)
+                    tasks = [
+                        self.client.fetch_case_detail(session, case.id)
+                        for case in cases
+                    ]
+                    results = await asyncio.gather(*tasks, return_exceptions=True)
 
-                        detail = await self.client.fetch_case_detail(session, case.id)
+                    # DB 업데이트는 메인에서 순차 처리 (SQLAlchemy 안전)
+                    for case, detail in zip(cases, results):
+                        if isinstance(detail, Exception):
+                            logger.warning(f"Failed to fetch case {case.id}: {detail}")
+                            detail = None
                         if detail:
                             case.summary = detail.get("판시사항")
                             case.ruling_gist = detail.get("판결요지")
@@ -138,7 +144,8 @@ class CollectionPipeline:
                             case.reference_cases = detail.get("참조판례")
                             case.full_text = detail.get("판례내용")
                         case.detail_fetched = True
-                        db.commit()
+
+                    db.commit()
 
                     fetched_count = db.execute(
                         select(func.count()).select_from(Case).where(Case.detail_fetched == True)  # noqa: E712

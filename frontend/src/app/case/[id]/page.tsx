@@ -44,22 +44,22 @@ export default function CaseDetailPage() {
       .finally(() => setLoading(false));
   }, [caseId]);
 
-  if (loading) return <div className="text-center py-20 text-slate-400">로딩중...</div>;
-  if (!caseData) return <div className="text-center py-20 text-slate-400">판례를 찾을 수 없습니다</div>;
+  if (loading) return <div className="text-center py-20 text-stone-400">로딩중...</div>;
+  if (!caseData) return <div className="text-center py-20 text-stone-400">판례를 찾을 수 없습니다</div>;
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">
+      <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-8">
+        <h1 className="text-2xl font-semibold text-stone-900 mb-2">
           {caseData.case_name || caseData.case_number}
         </h1>
-        <div className="flex flex-wrap gap-4 text-sm text-slate-500 mt-3">
-          <span>사건번호: <strong className="text-slate-700">{caseData.case_number}</strong></span>
-          <span>선고일: <strong className="text-slate-700">{caseData.decision_date || "-"}</strong></span>
-          <span>법원: <strong className="text-slate-700">{caseData.court_name || "-"}</strong></span>
-          <span>종류: <strong className="text-slate-700">{caseData.case_type_name || "-"}</strong></span>
-          <span>유형: <strong className="text-slate-700">{caseData.decision_type || "-"}</strong></span>
+        <div className="flex flex-wrap gap-4 text-sm text-stone-500 mt-3">
+          <span>사건번호: <strong className="text-stone-700">{caseData.case_number}</strong></span>
+          <span>선고일: <strong className="text-stone-700">{caseData.decision_date || "-"}</strong></span>
+          <span>법원: <strong className="text-stone-700">{caseData.court_name || "-"}</strong></span>
+          <span>종류: <strong className="text-stone-700">{caseData.case_type_name || "-"}</strong></span>
+          <span>유형: <strong className="text-stone-700">{caseData.decision_type || "-"}</strong></span>
         </div>
 
         {/* Judges */}
@@ -69,10 +69,10 @@ export default function CaseDetailPage() {
               <a
                 key={j.judge_id}
                 href={`/judge/${j.judge_id}`}
-                className="px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors"
+                className="px-3 py-1 text-sm bg-emerald-50 text-emerald-700 rounded-full hover:bg-emerald-100 transition-colors"
               >
                 {j.name}
-                {j.role && <span className="text-blue-400 ml-1">({j.role})</span>}
+                {j.role && <span className="text-emerald-400 ml-1">({j.role})</span>}
               </a>
             ))}
           </div>
@@ -101,9 +101,9 @@ export default function CaseDetailPage() {
 
 function Section({ title, content }: { title: string; content: string }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-3">{title}</h2>
-      <div className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
+    <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
+      <h2 className="text-lg font-semibold text-stone-900 mb-3">{title}</h2>
+      <div className="text-stone-700 text-sm leading-relaxed whitespace-pre-wrap">
         {content}
       </div>
     </div>

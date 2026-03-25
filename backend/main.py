@@ -38,6 +38,7 @@ app.add_middleware(
         settings.frontend_url,
         "http://localhost:3000",
         "http://localhost:3001",
+        "http://localhost:3006",
         "https://frontend-rust-phi-14.vercel.app",
     ],
     allow_credentials=True,

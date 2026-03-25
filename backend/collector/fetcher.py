@@ -20,25 +20,27 @@ class LawAPIClient:
 
     async def _request(self, session: aiohttp.ClientSession, url: str, params: dict) -> dict | None:
         """Rate-limited API request with retry."""
+        result = None
         async with self.semaphore:
             for attempt in range(3):
                 try:
                     async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=30)) as resp:
                         if resp.status == 200:
-                            return await resp.json(content_type=None)
+                            result = await resp.json(content_type=None)
+                            break
                         elif resp.status in (429, 503):
                             wait = (attempt + 1) * 5
                             logger.warning(f"Rate limited ({resp.status}), waiting {wait}s...")
                             await asyncio.sleep(wait)
                         else:
                             logger.error(f"API error {resp.status}: {url}")
-                            return None
+                            break
                 except (aiohttp.ClientError, asyncio.TimeoutError) as e:
                     wait = (attempt + 1) * 3
                     logger.warning(f"Request failed ({e}), retry in {wait}s...")
                     await asyncio.sleep(wait)
-            await asyncio.sleep(self.delay)
-        return None
+        await asyncio.sleep(self.delay)
+        return result
 
     async def search_cases(
         self, session: aiohttp.ClientSession, query: str = "*", page: int = 1, display: int = 100
