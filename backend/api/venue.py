@@ -20,7 +20,7 @@ router = APIRouter()
 
 @router.get("/case-types")
 def venue_case_types(db: Session = Depends(get_db)):
-    """사건유형 목록을 반환한다."""
+    """事件種類一覧を返す。"""
     return list_case_types(db)
 
 
@@ -29,7 +29,7 @@ def venue_courts(
     case_type: str | None = Query(None),
     db: Session = Depends(get_db),
 ):
-    """법원 목록을 반환한다."""
+    """裁判所一覧を返す。"""
     return list_courts(db, case_type)
 
 
@@ -39,13 +39,13 @@ def venue_court_stats(
     case_type: str | None = Query(None),
     db: Session = Depends(get_db),
 ):
-    """법원별 통계를 반환한다."""
+    """裁判所別統計を返す。"""
     return get_court_stats(db, court, case_type)
 
 
 @router.get("/decision-type-mapping")
 def venue_decision_mapping():
-    """유리/불리 판결유형 매핑을 반환한다."""
+    """有利/不利の判決類型マッピングを返す。"""
     return get_decision_type_mapping()
 
 
@@ -56,7 +56,7 @@ class CompareRequest(BaseModel):
 
 @router.post("/compare")
 def venue_compare(body: CompareRequest, db: Session = Depends(get_db)):
-    """복수 법원을 비교한다."""
+    """複数裁判所を比較する。"""
     return compare_courts(db, body.court_names, body.case_type)
 
 
@@ -68,7 +68,7 @@ class RecommendRequest(BaseModel):
 
 @router.post("/recommend")
 async def venue_recommend(body: RecommendRequest, db: Session = Depends(get_db)):
-    """AI가 최적 관할 법원을 추천한다 (SSE 스트리밍)."""
+    """AIが最適な管轄裁判所を推薦する（SSEストリーミング）。"""
 
     async def event_stream():
         try:

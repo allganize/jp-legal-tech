@@ -12,12 +12,12 @@ router = APIRouter()
 
 
 class DocumentReviewRequest(BaseModel):
-    document: str = Field(..., max_length=50000, description="검토할 법률 문서 텍스트")
+    document: str = Field(..., max_length=50000, description="レビュー対象の法律文書テキスト")
 
 
 class DocumentReviseRequest(BaseModel):
-    document: str = Field(..., max_length=50000, description="원본 법률 문서 텍스트")
-    feedback: str = Field(..., max_length=50000, description="AI 검토 피드백")
+    document: str = Field(..., max_length=50000, description="原本の法律文書テキスト")
+    feedback: str = Field(..., max_length=50000, description="AIレビューフィードバック")
 
 
 @router.post("/{judge_id}/review")
@@ -26,12 +26,12 @@ async def review_document(
     body: DocumentReviewRequest,
     db: Session = Depends(get_db),
 ):
-    """판사 관점에서 문서를 리뷰한다 (SSE 스트리밍)."""
+    """裁判官の視点で文書をレビューする（SSEストリーミング）。"""
     try:
         async def event_stream():
             try:
                 async for chunk in review_document_as_judge(db, judge_id, body.document):
-                    # JSON 인코딩으로 줄바꿈 문자를 안전하게 전송
+                    # JSON エンコーディングで改行文字を安全に送信
                     yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
                 yield "data: [DONE]\n\n"
             except Exception as e:
@@ -56,7 +56,7 @@ async def revise_document(
     body: DocumentReviseRequest,
     db: Session = Depends(get_db),
 ):
-    """검토 피드백을 반영하여 보완된 문서를 생성한다 (SSE 스트리밍)."""
+    """レビューフィードバックを反映して改善された文書を生成する（SSEストリーミング）。"""
     try:
         async def event_stream():
             try:

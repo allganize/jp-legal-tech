@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get("")
 def list_judges(
-    q: str = Query(..., min_length=1, description="판사 이름 검색"),
+    q: str = Query(..., min_length=1, description="裁判官名で検索"),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
