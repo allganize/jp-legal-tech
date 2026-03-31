@@ -27,3 +27,4 @@ data/*.db-shm
 
 # Conductor
 .context/
+data/*.db
