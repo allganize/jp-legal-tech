@@ -1,7 +1,7 @@
 [project]
-name = "machu-picchu"
+name = "jp-legal-tech"
 version = "0.1.0"
-description = "판사 판결 이력 및 성향 분석 대시보드"
+description = "日本向け裁判官判決傾向AI分析ダッシュボード"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",

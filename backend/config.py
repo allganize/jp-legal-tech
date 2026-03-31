@@ -4,18 +4,15 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # law.go.kr API
-    law_api_base: str = "http://www.law.go.kr/DRF"
-    law_api_oc: str = "hyominapi"
-    law_api_rate_limit: int = 10  # max concurrent requests
-    law_api_delay: float = 0.2  # seconds between batches
-
     # Database
-    db_path: Path = Path(__file__).parent.parent / "data" / "machu-picchu.db"
+    db_path: Path = Path(__file__).parent.parent / "data" / "jp-legal.db"
+
+    # Data source (path to cloned japanese-law-analysis/data_set repo)
+    data_source_path: Path = Path("/tmp/jp-data")
 
     # Claude API
     anthropic_api_key: str = ""
-    anthropic_model: str = "claude-sonnet-4-20250514"
+    anthropic_model: str = "claude-opus-4-20250514"
 
     # Server
     host: str = "0.0.0.0"

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: machu-picchu-api
+    name: jp-legal-tech-api
     runtime: python
     buildCommand: pip install .
     startCommand: python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
