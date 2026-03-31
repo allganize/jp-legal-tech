@@ -12,29 +12,29 @@ import {
 } from "@/lib/api";
 
 function highlightMarkers(text: string): ReactNode[] {
-  const parts = text.split(/(【추가】|【수정】|【삭제[^】]*】)/g);
+  const parts = text.split(/(【追加】|【修正】|【削除[^】]*】)/g);
   return parts.map((part, i) => {
-    if (part === "【추가】") {
+    if (part === "【追加】") {
       return (
         <span
           key={i}
           className="inline-block bg-green-100 text-green-800 text-[11px] font-semibold px-1.5 py-0.5 rounded mr-0.5"
         >
-          추가
+          追加
         </span>
       );
     }
-    if (part === "【수정】") {
+    if (part === "【修正】") {
       return (
         <span
           key={i}
           className="inline-block bg-amber-100 text-amber-800 text-[11px] font-semibold px-1.5 py-0.5 rounded mr-0.5"
         >
-          수정
+          修正
         </span>
       );
     }
-    if (part.startsWith("【삭제")) {
+    if (part.startsWith("【削除")) {
       return (
         <span
           key={i}
@@ -158,18 +158,18 @@ export default function JudgeReviewPage() {
             href={`/judge/${judgeId}`}
             className="text-sm text-emerald-600 hover:text-emerald-700"
           >
-            &larr; {profile?.name || "판사"} 프로필로 돌아가기
+            &larr; {profile?.name || "裁判官"} プロフィールに戻る
           </Link>
           <h1 className="text-2xl font-semibold text-stone-900 mt-1">
-            {profile?.name || "..."} 판사 AI 문서 검토
+            {profile?.name || "..."} 裁判官 AI文書レビュー
             {profile?.is_supreme_court && (
               <span className="ml-2 px-2 py-1 text-xs bg-amber-50 text-amber-700 rounded-full">
-                대법관
+                最高裁判事
               </span>
             )}
           </h1>
           <p className="text-sm text-stone-500 mt-1">
-            판결 성향 기반 검토 &rarr; 피드백 반영 보완본 자동 생성
+            判決傾向に基づくレビュー &rarr; フィードバック反映補完版の自動生成
           </p>
         </div>
         {(reviewState === "done" || reviseState === "done") && (
@@ -177,7 +177,7 @@ export default function JudgeReviewPage() {
             onClick={handleReset}
             className="px-4 py-2 text-sm border border-stone-200 rounded-lg hover:bg-stone-50 transition text-stone-700"
           >
-            새 문서 검토
+            新規文書レビュー
           </button>
         )}
       </div>
@@ -186,9 +186,9 @@ export default function JudgeReviewPage() {
       <div className="flex gap-1 lg:hidden bg-stone-100 rounded-lg p-1">
         {(
           [
-            ["input", "원본 문서"],
-            ["review", "검토 결과"],
-            ["revised", "보완본"],
+            ["input", "原本文書"],
+            ["review", "検討結果"],
+            ["revised", "補完版"],
           ] as const
         ).map(([key, label]) => (
           <button
@@ -221,7 +221,7 @@ export default function JudgeReviewPage() {
         >
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-base font-semibold text-stone-900">
-              원본 문서
+              原本文書
             </h2>
             <span
               className={`text-xs ${
@@ -235,7 +235,7 @@ export default function JudgeReviewPage() {
             value={document}
             onChange={(e) => setDocument(e.target.value.slice(0, 50000))}
             disabled={isStreaming}
-            placeholder="소장, 준비서면, 항소이유서 등 법률 문서를 붙여넣으세요..."
+            placeholder="訴状、準備書面、控訴理由書などの法律文書を貼り付けてください..."
             className="w-full h-[560px] p-3 border border-stone-200 rounded-lg text-sm text-stone-700 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 disabled:bg-stone-50 disabled:text-stone-500 leading-relaxed"
           />
           <button
@@ -246,10 +246,10 @@ export default function JudgeReviewPage() {
             {reviewState === "streaming" ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                검토 중...
+                検討中...
               </span>
             ) : (
-              "검토 요청"
+              "検討依頼"
             )}
           </button>
         </div>
@@ -262,7 +262,7 @@ export default function JudgeReviewPage() {
         >
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-base font-semibold text-stone-900">
-              AI 검토 결과
+              AI検討結果
             </h2>
             {reviewState === "done" && (
               <button
@@ -273,10 +273,10 @@ export default function JudgeReviewPage() {
                 {reviseState === "streaming" ? (
                   <span className="flex items-center gap-1.5">
                     <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    생성 중...
+                    生成中...
                   </span>
                 ) : (
-                  "보완본 생성 &rarr;"
+                  "補完版生成 &rarr;"
                 )}
               </button>
             )}
@@ -297,7 +297,7 @@ export default function JudgeReviewPage() {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <p className="text-sm">검토 결과가 여기에 표시됩니다</p>
+              <p className="text-sm">検討結果がここに表示されます</p>
             </div>
           ) : (
             <>
@@ -308,7 +308,7 @@ export default function JudgeReviewPage() {
                     onClick={handleReview}
                     className="mt-1 text-xs text-red-600 underline"
                   >
-                    다시 시도
+                    再試行
                   </button>
                 </div>
               )}
@@ -325,7 +325,7 @@ export default function JudgeReviewPage() {
               </div>
               {reviewState === "done" && (
                 <p className="text-xs text-stone-400 mt-1.5 text-right">
-                  {profile?.name} 판사 판결 데이터 <span className="font-mono">{profile?.case_count}</span>건 기반
+                  {profile?.name} 裁判官判決データ <span className="font-mono">{profile?.case_count}</span>件に基づく
                 </p>
               )}
             </>
@@ -340,7 +340,7 @@ export default function JudgeReviewPage() {
         >
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-base font-semibold text-stone-900">
-              보완된 문서
+              補完された文書
             </h2>
             {reviseState === "done" && revised && (
               <button
@@ -349,7 +349,7 @@ export default function JudgeReviewPage() {
                 }}
                 className="px-3 py-1.5 text-xs border border-stone-200 rounded-lg hover:bg-stone-50 transition text-stone-600"
               >
-                복사
+                コピー
               </button>
             )}
           </div>
@@ -369,9 +369,9 @@ export default function JudgeReviewPage() {
                   d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                 />
               </svg>
-              <p className="text-sm">검토 완료 후 보완본을 생성하세요</p>
+              <p className="text-sm">検討完了後に補完版を生成してください</p>
               <p className="text-xs mt-1 text-stone-300">
-                피드백이 반영된 문서가 여기에 표시됩니다
+                フィードバックが反映された文書がここに表示されます
               </p>
             </div>
           ) : (
@@ -383,7 +383,7 @@ export default function JudgeReviewPage() {
                     onClick={handleRevise}
                     className="mt-1 text-xs text-red-600 underline"
                   >
-                    다시 시도
+                    再試行
                   </button>
                 </div>
               )}
@@ -425,7 +425,7 @@ export default function JudgeReviewPage() {
               </div>
               {reviseState === "done" && (
                 <p className="text-xs text-stone-400 mt-1.5 text-right">
-                  보완 완료 &mdash; 【추가】 【수정】 표시 확인
+                  補完完了 &mdash; 【追加】 【修正】 表示を確認
                 </p>
               )}
             </>

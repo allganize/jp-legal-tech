@@ -54,7 +54,7 @@ export default function JudgeProfilePage() {
     setPersonaError("");
     getJudgePersona(judgeId, regenerate)
       .then(setPersona)
-      .catch((e) => setPersonaError(e.message || "페르소나 생성에 실패했습니다."))
+      .catch((e) => setPersonaError(e.message || "ペルソナの生成に失敗しました。"))
       .finally(() => setPersonaLoading(false));
   };
 
@@ -69,11 +69,11 @@ export default function JudgeProfilePage() {
   }, [judgeId, page, caseTypeFilter]);
 
   if (loading) {
-    return <div className="text-center py-20 text-stone-400">로딩중...</div>;
+    return <div className="text-center py-20 text-stone-400">読み込み中...</div>;
   }
 
   if (!profile) {
-    return <div className="text-center py-20 text-stone-400">판사를 찾을 수 없습니다</div>;
+    return <div className="text-center py-20 text-stone-400">裁判官が見つかりません</div>;
   }
 
   return (
@@ -86,29 +86,29 @@ export default function JudgeProfilePage() {
               {profile.name}
               {profile.is_supreme_court && (
                 <span className="ml-3 px-3 py-1 text-sm bg-amber-50 text-amber-700 rounded-full font-medium">
-                  대법관
+                  最高裁判事
                 </span>
               )}
             </h1>
             <p className="text-stone-500 mt-2">
-              {profile.court_name || "법원 미상"}
+              {profile.court_name || "裁判所不明"}
             </p>
           </div>
           <div className="text-right">
             <div className="text-4xl font-semibold font-mono text-emerald-600">{profile.case_count}</div>
-            <div className="text-sm text-stone-400">총 판결 수</div>
+            <div className="text-sm text-stone-400">総判決数</div>
           </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
-          <InfoCard label="활동 시작" value={profile.first_seen_date?.slice(0, 4) || "-"} />
-          <InfoCard label="최근 활동" value={profile.last_seen_date?.slice(0, 4) || "-"} />
+          <InfoCard label="活動開始" value={profile.first_seen_date?.slice(0, 4) || "-"} />
+          <InfoCard label="最近の活動" value={profile.last_seen_date?.slice(0, 4) || "-"} />
           <InfoCard
-            label="활동 법원"
-            value={`${profile.courts_served.length}개`}
+            label="所属裁判所"
+            value={`${profile.courts_served.length}箇所`}
           />
           <InfoCard
-            label="주요 역할"
+            label="主な役割"
             value={profile.role_distribution[0]?.role || "-"}
           />
         </div>
@@ -132,11 +132,11 @@ export default function JudgeProfilePage() {
       <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-semibold text-stone-900">AI 판사 성향 분석</h2>
+            <h2 className="text-xl font-semibold text-stone-900">AI裁判官傾向分析</h2>
             {persona?.generated_at && (
               <p className="text-xs text-stone-400 mt-1">
-                {new Date(persona.generated_at).toLocaleDateString("ko-KR")} 생성
-                {persona.is_cached && " (캐시)"}
+                {new Date(persona.generated_at).toLocaleDateString("ja-JP")} 生成
+                {persona.is_cached && " (キャッシュ)"}
               </p>
             )}
           </div>
@@ -146,13 +146,13 @@ export default function JudgeProfilePage() {
               disabled={personaLoading}
               className="px-3 py-1.5 text-sm border border-stone-200 rounded-lg hover:bg-stone-50 disabled:opacity-50"
             >
-              {personaLoading ? "분석 중..." : "재생성"}
+              {personaLoading ? "分析中..." : "再生成"}
             </button>
             <Link
               href={`/judge/${judgeId}/review`}
               className="px-4 py-1.5 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 active:scale-[0.98] transition"
             >
-              문서 검토 받기 &rarr;
+              文書レビューを受ける &rarr;
             </Link>
           </div>
         </div>
@@ -168,18 +168,18 @@ export default function JudgeProfilePage() {
           <div className="text-center py-8 text-stone-400">{personaError}</div>
         ) : persona ? (
           <div className="space-y-6">
-            {/* 성향 요약 */}
+            {/* 傾向要約 */}
             <div>
               <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">
-                판결 성향 요약
+                判決傾向の要約
               </h3>
               <p className="text-stone-700 leading-relaxed">{persona.tendency_summary}</p>
             </div>
 
-            {/* 주요 법리 */}
+            {/* 主要法理 */}
             <div>
               <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">
-                주요 관심 법리
+                主要法理原則
               </h3>
               <div className="flex flex-wrap gap-2">
                 {persona.key_legal_principles.map((p, i) => (
@@ -193,12 +193,12 @@ export default function JudgeProfilePage() {
               </div>
             </div>
 
-            {/* 자주 인용 */}
+            {/* 頻繁な引用 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {persona.frequently_cited.articles.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">
-                    자주 인용하는 조문
+                    頻繁に引用する条文
                   </h3>
                   <ul className="space-y-1">
                     {persona.frequently_cited.articles.map((a, i) => (
@@ -212,7 +212,7 @@ export default function JudgeProfilePage() {
               {persona.frequently_cited.cases.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">
-                    자주 인용하는 판례
+                    頻繁に引用する判例
                   </h3>
                   <ul className="space-y-1">
                     {persona.frequently_cited.cases.map((c, i) => (
@@ -225,18 +225,18 @@ export default function JudgeProfilePage() {
               )}
             </div>
 
-            {/* 판결문 스타일 */}
+            {/* 判決文スタイル */}
             <div>
               <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">
-                판결문 스타일
+                判決文スタイル
               </h3>
               <p className="text-stone-700 leading-relaxed">{persona.writing_style}</p>
             </div>
 
-            {/* 문서 작성 팁 */}
+            {/* 文書作成のヒント */}
             <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
               <h3 className="text-sm font-semibold text-amber-700 uppercase tracking-wider mb-2">
-                문서 작성 시 유의사항
+                文書作成時の注意事項
               </h3>
               <p className="text-amber-900 leading-relaxed whitespace-pre-line text-sm">
                 {persona.document_tips}
@@ -250,7 +250,7 @@ export default function JudgeProfilePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Case Type Distribution */}
         <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
-          <h2 className="text-lg font-semibold text-stone-900 mb-4">사건 종류 분포</h2>
+          <h2 className="text-lg font-semibold text-stone-900 mb-4">事件種類分布</h2>
           {profile.case_type_distribution.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -272,26 +272,26 @@ export default function JudgeProfilePage() {
             </ResponsiveContainer>
           ) : (
             <div className="h-[300px] flex items-center justify-center text-stone-400">
-              데이터 없음
+              データなし
             </div>
           )}
         </div>
 
         {/* Yearly Timeline */}
         <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
-          <h2 className="text-lg font-semibold text-stone-900 mb-4">연도별 판결 추이</h2>
+          <h2 className="text-lg font-semibold text-stone-900 mb-4">年度別判決推移</h2>
           {profile.yearly_distribution.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={profile.yearly_distribution}>
                 <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="count" fill="#059669" radius={[4, 4, 0, 0]} name="판결 수" />
+                <Bar dataKey="count" fill="#059669" radius={[4, 4, 0, 0]} name="判決数" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
             <div className="h-[300px] flex items-center justify-center text-stone-400">
-              데이터 없음
+              データなし
             </div>
           )}
         </div>
@@ -300,7 +300,7 @@ export default function JudgeProfilePage() {
       {/* Role & Decision Type */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
-          <h2 className="text-lg font-semibold text-stone-900 mb-4">역할 분포</h2>
+          <h2 className="text-lg font-semibold text-stone-900 mb-4">役割分布</h2>
           <div className="space-y-2">
             {profile.role_distribution.map((r) => (
               <div key={r.role} className="flex items-center justify-between">
@@ -320,9 +320,9 @@ export default function JudgeProfilePage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
-          <h2 className="text-lg font-semibold text-stone-900 mb-4">판결 유형 분포</h2>
+          <h2 className="text-lg font-semibold text-stone-900 mb-4">判決類型分布</h2>
           <div className="space-y-2">
-            {profile.decision_type_distribution.map((d) => (
+            {profile.result_type_distribution.map((d) => (
               <div key={d.type} className="flex items-center justify-between">
                 <span className="text-stone-600">{d.type}</span>
                 <div className="flex items-center gap-2">
@@ -343,7 +343,7 @@ export default function JudgeProfilePage() {
       {/* Case Table */}
       <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-stone-900">판결 목록</h2>
+          <h2 className="text-lg font-semibold text-stone-900">判決一覧</h2>
           <select
             value={caseTypeFilter}
             onChange={(e) => {
@@ -352,7 +352,7 @@ export default function JudgeProfilePage() {
             }}
             className="text-sm border border-stone-200 rounded-lg px-3 py-1.5 bg-white text-stone-700"
           >
-            <option value="">전체 사건종류</option>
+            <option value="">全事件種類</option>
             {profile.case_type_distribution.map((d) => (
               <option key={d.type} value={d.type}>
                 {d.type} ({d.count})
@@ -367,12 +367,12 @@ export default function JudgeProfilePage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-stone-200 text-left text-stone-500">
-                    <th className="pb-3 pr-4">선고일</th>
-                    <th className="pb-3 pr-4">사건번호</th>
-                    <th className="pb-3 pr-4">사건명</th>
-                    <th className="pb-3 pr-4">법원</th>
-                    <th className="pb-3 pr-4">종류</th>
-                    <th className="pb-3">역할</th>
+                    <th className="pb-3 pr-4">判決日</th>
+                    <th className="pb-3 pr-4">事件番号</th>
+                    <th className="pb-3 pr-4">事件名</th>
+                    <th className="pb-3 pr-4">裁判所</th>
+                    <th className="pb-3 pr-4">種類</th>
+                    <th className="pb-3">役割</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
@@ -392,15 +392,15 @@ export default function JudgeProfilePage() {
                       </td>
                       <td className="py-3 pr-4">
                         <span className="px-2 py-1 text-xs bg-stone-50 text-stone-600 rounded-full">
-                          {c.case_type_name || "-"}
+                          {c.trial_type || "-"}
                         </span>
                       </td>
                       <td className="py-3">
                         <span
                           className={`px-2 py-1 text-xs rounded-full ${
-                            c.role === "재판장"
+                            c.role === "裁判長"
                               ? "bg-emerald-50 text-emerald-700"
-                              : c.role === "주심"
+                              : c.role === "主任"
                               ? "bg-amber-50 text-amber-700"
                               : "bg-stone-50 text-stone-600"
                           }`}
@@ -418,8 +418,8 @@ export default function JudgeProfilePage() {
             {caseData.total_pages > 1 && (
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-stone-100">
                 <span className="text-sm text-stone-500">
-                  총 {caseData.total}건 중 {(page - 1) * 20 + 1}-
-                  {Math.min(page * 20, caseData.total)}건
+                  全{caseData.total}件中 {(page - 1) * 20 + 1}-
+                  {Math.min(page * 20, caseData.total)}件
                 </span>
                 <div className="flex gap-2">
                   <button
@@ -427,7 +427,7 @@ export default function JudgeProfilePage() {
                     disabled={page === 1}
                     className="px-3 py-1 text-sm border border-stone-200 rounded-lg hover:bg-stone-50 disabled:opacity-50"
                   >
-                    이전
+                    前へ
                   </button>
                   <span className="px-3 py-1 text-sm font-mono text-stone-600">
                     {page} / {caseData.total_pages}
@@ -437,14 +437,14 @@ export default function JudgeProfilePage() {
                     disabled={page === caseData.total_pages}
                     className="px-3 py-1 text-sm border border-stone-200 rounded-lg hover:bg-stone-50 disabled:opacity-50"
                   >
-                    다음
+                    次へ
                   </button>
                 </div>
               </div>
             )}
           </>
         ) : (
-          <div className="text-center py-8 text-stone-400">판결 데이터가 없습니다</div>
+          <div className="text-center py-8 text-stone-400">判決データがありません</div>
         )}
       </div>
     </div>

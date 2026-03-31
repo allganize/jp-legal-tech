@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Machu Picchu — AI 리걸 인텔리전스",
-  description: "변호사를 위한 AI 리걸 인텔리전스 플랫폼",
+  title: "Machu Picchu — AIリーガルインテリジェンス",
+  description: "弁護士のためのAIリーガルインテリジェンスプラットフォーム",
 };
 
 export default function RootLayout({
@@ -24,9 +24,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ja">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{ fontFamily: '"Hiragino Kaku Gothic ProN", "Noto Sans JP", var(--font-geist-sans), sans-serif' }}
       >
         <ConditionalShell>{children}</ConditionalShell>
       </body>

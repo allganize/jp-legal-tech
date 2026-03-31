@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   searchJudges,
   getCollectionStatus,
-  startCollection,
-  stopCollection,
   type JudgeSearchResult,
   type CollectionStatus,
 } from "@/lib/api";
@@ -49,7 +47,7 @@ export default function Dashboard() {
       }
     };
     fetchStatus();
-    const interval = setInterval(fetchStatus, 5000);
+    const interval = setInterval(fetchStatus, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -57,10 +55,10 @@ export default function Dashboard() {
     <div className="space-y-10">
       <div className="text-center py-12">
         <h1 className="text-4xl font-semibold text-stone-900 mb-4">
-          판사 판결 분석 대시보드
+          裁判官判決分析ダッシュボード
         </h1>
         <p className="text-lg text-stone-500 mb-8">
-          판사 이름을 검색하여 판결 이력과 성향을 분석하세요
+          裁判官名を検索して判決履歴と傾向を分析しましょう
         </p>
 
         <div className="max-w-xl mx-auto relative">
@@ -68,13 +66,13 @@ export default function Dashboard() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="판사 이름을 입력하세요..."
+            placeholder="裁判官名で検索..."
             className="w-full px-6 py-4 text-lg border-2 border-stone-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none shadow-sm bg-white text-stone-800 placeholder-stone-400"
             autoFocus
           />
           {loading && (
             <div className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400">
-              검색중...
+              検索中...
             </div>
           )}
         </div>
@@ -94,11 +92,11 @@ export default function Dashboard() {
                 </span>
                 {judge.is_supreme_court && (
                   <span className="ml-2 px-2 py-1 text-xs bg-amber-50 text-amber-700 rounded-full">
-                    대법관
+                    最高裁判事
                   </span>
                 )}
                 <div className="text-sm text-stone-500 mt-1">
-                  {judge.court_name || "법원 미상"}
+                  {judge.court_name || "裁判所不明"}
                   {judge.first_seen_date && judge.last_seen_date && (
                     <span className="ml-2">
                       ({judge.first_seen_date.slice(0, 4)} ~{" "}
@@ -111,7 +109,7 @@ export default function Dashboard() {
                 <div className="text-2xl font-semibold font-mono text-emerald-600">
                   {judge.case_count}
                 </div>
-                <div className="text-xs text-stone-400">판결</div>
+                <div className="text-xs text-stone-400">判決</div>
               </div>
             </button>
           ))}
@@ -119,7 +117,7 @@ export default function Dashboard() {
       )}
 
       {query && !loading && results.length === 0 && (
-        <p className="text-center text-stone-400">검색 결과가 없습니다</p>
+        <p className="text-center text-stone-400">検索結果がありません</p>
       )}
 
       {status && (
@@ -128,46 +126,19 @@ export default function Dashboard() {
             onClick={() => setShowAdmin(!showAdmin)}
             className="text-sm text-stone-400 hover:text-stone-600"
           >
-            {showAdmin ? "▼" : "▶"} 데이터 수집 현황 (판례{" "}
-            {status.total_cases.toLocaleString()}건 / 판사{" "}
-            {status.total_judges.toLocaleString()}명)
+            {showAdmin ? "▼" : "▶"} データ状況 (判例{" "}
+            {status.total_cases.toLocaleString()}件 / 裁判官{" "}
+            {status.total_judges.toLocaleString()}名)
           </button>
 
           {showAdmin && (
             <div className="mt-4 p-6 bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 space-y-4">
               <div className="grid grid-cols-2 gap-6 text-sm">
-                <Stat label="전체 판례" value={status.total_cases} />
-                <Stat label="상세 수집" value={status.detail_fetched} />
-                <Stat label="파싱 판결문" value={status.with_judge_info} />
-                <Stat label="판사 수" value={status.total_judges} />
+                <Stat label="全判例" value={status.total_cases} />
+                <Stat label="解析済判決文" value={status.with_judge_info} />
+                <Stat label="裁判官数" value={status.total_judges} />
+                <Stat label="裁判官-判例リンク" value={status.total_case_judge_links} />
               </div>
-
-              <div className="flex gap-2 flex-wrap">
-                {["all", "search", "detail", "parse"].map((phase) => (
-                  <button
-                    key={phase}
-                    onClick={() => startCollection(phase)}
-                    disabled={status.is_running}
-                    className="px-3 py-1.5 text-sm bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 disabled:opacity-50"
-                  >
-                    {{ all: "전체 수집", search: "검색 수집", detail: "상세 수집", parse: "파싱" }[phase]}
-                  </button>
-                ))}
-                {status.is_running && (
-                  <button
-                    onClick={() => stopCollection()}
-                    className="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
-                  >
-                    중지
-                  </button>
-                )}
-              </div>
-
-              {status.is_running && (
-                <div className="text-sm text-green-600 animate-pulse">
-                  ● 수집 진행 중...
-                </div>
-              )}
             </div>
           )}
         </div>

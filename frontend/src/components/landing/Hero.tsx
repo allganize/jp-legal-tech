@@ -10,26 +10,25 @@ function stagger(i: number) {
 
 export default function Hero() {
   return (
-    <section className="min-h-[100dvh] flex flex-col">
+    <section className="min-h-[100dvh] flex flex-col bg-[#FAFAF8]">
       {/* Inline nav */}
       <nav className="w-full px-6 md:px-12 lg:px-20 py-5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <a
             href="/"
-            className="text-lg font-semibold tracking-tight text-stone-900"
+            className="text-lg font-semibold tracking-tight text-[#1B2A4A]"
           >
-            Machu Picchu
+            判例AI
           </a>
           <div className="flex gap-1">
             {[
-              { label: "판사 분석", href: "/dashboard" },
-              { label: "관할 최적화", href: "/venue" },
-              { label: "규제 에이전트", href: "/regulation" },
+              { label: "裁判官分析", href: "/dashboard" },
+              { label: "管轄最適化", href: "/venue" },
             ].map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="px-3 py-1.5 text-sm rounded-lg text-stone-600 hover:bg-stone-100 hover:text-stone-800 transition-colors"
+                className="px-3 py-1.5 text-sm rounded-lg text-[#2D2D2D]/60 hover:bg-[#E8EDF5] hover:text-[#1B2A4A] transition-colors"
               >
                 {link.label}
               </a>
@@ -47,25 +46,25 @@ export default function Hero() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={stagger(0)}
-              className="text-4xl md:text-6xl tracking-tighter font-bold text-stone-900"
+              className="text-4xl md:text-6xl tracking-tighter font-bold text-[#1B2A4A]"
             >
-              Machu Picchu
+              判例AI
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={stagger(1)}
-              className="text-xl text-stone-500 mt-4 max-w-md"
+              className="text-xl text-[#2D2D2D]/60 mt-4 max-w-md"
             >
-              변호사를 위한 AI 리걸 인텔리전스
+              弁護士のためのAI判例分析プラットフォーム
             </motion.p>
             <motion.p
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={stagger(2)}
-              className="font-mono text-sm text-stone-400 mt-3"
+              className="font-mono text-sm text-[#2D2D2D]/40 mt-3"
             >
-              판결 데이터 170,000+ 건 분석
+              日本の裁判所判例65,000件以上をAIが分析
             </motion.p>
 
             <motion.div
@@ -76,9 +75,9 @@ export default function Hero() {
             >
               <a
                 href="/dashboard"
-                className="bg-emerald-600 text-white rounded-lg px-6 py-3 font-medium hover:bg-emerald-700 transition active:scale-[0.98]"
+                className="bg-[#1B2A4A] text-white rounded-lg px-6 py-3 font-medium hover:bg-[#243656] transition active:scale-[0.98]"
               >
-                지금 시작하기
+                今すぐ始める
               </a>
               <a
                 href="#features"
@@ -88,25 +87,60 @@ export default function Hero() {
                     .getElementById("features")
                     ?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className="border border-stone-300 text-stone-600 rounded-lg px-6 py-3 font-medium hover:bg-stone-50 transition"
+                className="border border-[#1B2A4A] text-[#1B2A4A] rounded-lg px-6 py-3 font-medium hover:bg-[#E8EDF5] transition"
               >
-                기능 살펴보기
+                機能を見る
               </a>
             </motion.div>
           </div>
 
-          {/* Right: geometric decoration */}
+          {/* Right: Zen-inspired vertical gold accent with mini stat cards */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={stagger(4)}
-            className="relative hidden md:block h-[420px]"
+            className="relative hidden md:flex items-center justify-center h-[420px]"
           >
-            <div className="absolute top-8 left-8 w-64 h-64 rounded-3xl bg-stone-100 rotate-3" />
-            <div className="absolute top-20 left-20 w-56 h-56 rounded-3xl bg-stone-200/80 -rotate-2" />
-            <div className="absolute top-32 left-12 w-48 h-48 rounded-3xl border-2 border-emerald-600/30 rotate-6" />
-            <div className="absolute top-16 right-8 w-32 h-32 rounded-2xl bg-stone-100 -rotate-6" />
-            <div className="absolute bottom-12 left-32 w-40 h-24 rounded-2xl border border-stone-200 bg-white/60 rotate-1" />
+            {/* Vertical gold accent line */}
+            <div className="absolute left-1/2 -translate-x-1/2 w-[2px] h-72 bg-gradient-to-b from-transparent via-[#C5A55A] to-transparent" />
+
+            {/* Mini stat cards floating beside the line */}
+            <motion.div
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={stagger(5)}
+              className="absolute top-12 left-[55%] bg-white border border-stone-200 rounded-xl px-5 py-4 shadow-sm"
+            >
+              <p className="text-xs text-[#2D2D2D]/50 mb-1">裁判官プロフィール</p>
+              <p className="font-semibold text-[#1B2A4A]">田中太郎</p>
+              <p className="text-xs text-[#2D2D2D]/40 mt-0.5">東京地方裁判所</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={stagger(6)}
+              className="absolute top-[170px] right-[55%] bg-white border border-stone-200 rounded-xl px-5 py-4 shadow-sm"
+            >
+              <p className="text-xs text-[#2D2D2D]/50 mb-1">認容率</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg font-bold font-mono text-[#1B2A4A]">72.4</span>
+                <span className="text-sm font-mono text-[#C5A55A]">%</span>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={stagger(7)}
+              className="absolute bottom-16 left-[55%] bg-white border border-stone-200 rounded-xl px-5 py-4 shadow-sm"
+            >
+              <p className="text-xs text-[#2D2D2D]/50 mb-1">分析済み判例</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg font-bold font-mono text-[#1B2A4A]">65,466</span>
+                <span className="text-sm font-mono text-[#C5A55A]">件</span>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>

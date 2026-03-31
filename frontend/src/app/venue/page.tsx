@@ -56,28 +56,28 @@ export default function VenuePage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-semibold text-stone-900">
-          관할/재판부 최적화 추천
+          管轄/裁判部最適化推薦
         </h1>
         <p className="text-stone-500 mt-2">
-          사건 유형을 선택하면 법원별 판결 통계를 비교할 수 있습니다.
-          법원을 2~5개 선택하여 상세 비교하세요.
+          事件類型を選択すると裁判所別の判決統計を比較できます。
+          裁判所を2~5箇所選択して詳細比較してください。
         </p>
       </div>
 
       {/* Case Type Selector */}
       <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
         <label className="block text-sm font-medium text-stone-700 mb-2">
-          사건 유형 선택
+          事件類型の選択
         </label>
         <select
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value)}
           className="w-full max-w-md border border-stone-200 rounded-lg px-4 py-2.5 text-stone-700 bg-white"
         >
-          <option value="">사건 유형을 선택하세요</option>
+          <option value="">事件類型を選択してください</option>
           {caseTypes.map((ct) => (
             <option key={ct.type} value={ct.type}>
-              {ct.type} ({ct.count}건)
+              {ct.type} ({ct.count}件)
             </option>
           ))}
         </select>
@@ -85,7 +85,7 @@ export default function VenuePage() {
 
       {/* Court Grid */}
       {loading && (
-        <div className="text-center py-12 text-stone-400">로딩중...</div>
+        <div className="text-center py-12 text-stone-400">読み込み中...</div>
       )}
 
       {!loading && courts.length > 0 && (
@@ -93,14 +93,14 @@ export default function VenuePage() {
           {/* Compare Button */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-stone-500">
-              {courts.length}개 법원 | {selected.size}개 선택됨
+              {courts.length}箇所の裁判所 | {selected.size}箇所選択済
             </p>
             <button
               onClick={goCompare}
               disabled={selected.size < 2}
               className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              선택 법원 비교하기 ({selected.size}/2~5)
+              選択裁判所を比較する ({selected.size}/2~5)
             </button>
           </div>
 
@@ -123,7 +123,7 @@ export default function VenuePage() {
                         {court.court_name}
                       </h3>
                       <p className="text-sm text-stone-500 mt-1">
-                        {selectedType} 관련 판결
+                        {selectedType} 関連判決
                       </p>
                     </div>
                     <div
@@ -155,7 +155,7 @@ export default function VenuePage() {
                       <span className="text-3xl font-semibold font-mono text-stone-900">
                         {court.total_cases}
                       </span>
-                      <span className="text-sm text-stone-500 ml-1">건</span>
+                      <span className="text-sm text-stone-500 ml-1">件</span>
                     </div>
                     {court.acceptance_rate != null && court.classified_cases > 0 && (
                       <div className="text-right">
@@ -169,7 +169,7 @@ export default function VenuePage() {
                           {court.acceptance_rate}%
                         </div>
                         <div className="text-[10px] text-stone-400">
-                          승소율 ({court.classified_cases}건)
+                          認容率 ({court.classified_cases}件)
                         </div>
                       </div>
                     )}
@@ -183,7 +183,7 @@ export default function VenuePage() {
 
       {!loading && selectedType && courts.length === 0 && (
         <div className="text-center py-12 text-stone-400">
-          해당 사건 유형의 판결 데이터가 없습니다
+          該当事件類型の判決データがありません
         </div>
       )}
     </div>

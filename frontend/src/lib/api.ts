@@ -40,20 +40,20 @@ export interface JudgeProfile {
   last_seen_date: string | null;
   case_count: number;
   case_type_distribution: Distribution[];
-  decision_type_distribution: Distribution[];
+  result_type_distribution: Distribution[];
   yearly_distribution: Distribution[];
   role_distribution: Distribution[];
   courts_served: Distribution[];
 }
 
 export interface CaseItem {
-  id: number;
+  id: string;
   case_number: string;
   case_name: string | null;
   court_name: string | null;
-  case_type_name: string | null;
+  trial_type: string | null;
   decision_date: string | null;
-  decision_type: string | null;
+  result_type: string | null;
   role: string | null;
 }
 
@@ -67,12 +67,9 @@ export interface CaseListResponse {
 
 export interface CollectionStatus {
   total_cases: number;
-  detail_fetched: number;
   with_judge_info: number;
   total_judges: number;
   total_case_judge_links: number;
-  is_running: boolean;
-  phases: Record<string, { status: string; page: number; total_pages: number | null; total_count: number | null }>;
 }
 
 export interface JudgePersona {
@@ -104,7 +101,7 @@ async function consumeSSE(
 ): Promise<void> {
   const reader = res.body?.getReader();
   if (!reader) {
-    onError("스트리밍을 시작할 수 없습니다.");
+    onError("ストリーミングを開始できません。");
     return;
   }
   const decoder = new TextDecoder();
@@ -126,7 +123,7 @@ async function consumeSSE(
           onError(data.slice(8));
           return;
         }
-        // 서버에서 JSON 인코딩된 청크를 디코딩
+        // サーバーからJSON エンコードされたチャンクをデコード
         try {
           onChunk(JSON.parse(data));
         } catch {
@@ -151,7 +148,7 @@ export async function reviewDocument(
     body: JSON.stringify({ document }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "서버 오류" }));
+    const err = await res.json().catch(() => ({ detail: "サーバーエラー" }));
     onError(err.detail || `API error: ${res.status}`);
     return;
   }
@@ -172,14 +169,14 @@ export async function reviseDocument(
     body: JSON.stringify({ document, feedback }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "서버 오류" }));
+    const err = await res.json().catch(() => ({ detail: "サーバーエラー" }));
     onError(err.detail || `API error: ${res.status}`);
     return;
   }
   await consumeSSE(res, onChunk, onDone, onError);
 }
 
-// ── 규제 에이전트 타입 ──────────────────────────────────────
+// ── 規制エージェント型 ──────────────────────────────────────
 
 export interface RegulationItem {
   id: number;
@@ -248,7 +245,7 @@ export interface WeeklyBriefing {
   categories: string[];
 }
 
-// ── 규제 에이전트 API ──────────────────────────────────────
+// ── 規制エージェント API ──────────────────────────────────────
 
 export function getRegulationFeed(
   category?: string,
@@ -299,7 +296,7 @@ export async function generateRegulationDocument(
     }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "서버 오류" }));
+    const err = await res.json().catch(() => ({ detail: "サーバーエラー" }));
     onError(err.detail || `API error: ${res.status}`);
     return;
   }
@@ -310,7 +307,7 @@ export async function seedRegulationData(): Promise<void> {
   await fetch(`${API_BASE}/regulation/seed`, { method: "POST", headers: DEFAULT_HEADERS });
 }
 
-// ── 관할 최적화 타입 ──────────────────────────────────────
+// ── 管轄最適化型 ──────────────────────────────────────
 
 export interface CourtSummary {
   court_name: string;
@@ -325,7 +322,7 @@ export interface CourtJudgeSummary {
   case_count: number;
   acceptance_rate: number;
   dismissal_rate: number;
-  decision_type_distribution: Distribution[];
+  result_type_distribution: Distribution[];
 }
 
 export interface CourtStats {
@@ -336,7 +333,7 @@ export interface CourtStats {
   dismissal_rate: number;
   unclassified_rate: number;
   outcome_distribution: Distribution[];
-  decision_type_distribution: Distribution[];
+  result_type_distribution: Distribution[];
   case_type_distribution: Distribution[];
   yearly_distribution: Distribution[];
   top_judges: CourtJudgeSummary[];
@@ -348,7 +345,7 @@ export interface CourtComparison {
   case_type: string | null;
 }
 
-// ── 관할 최적화 API ──────────────────────────────────────
+// ── 管轄最適化 API ──────────────────────────────────────
 
 export function getVenueCaseTypes(): Promise<Distribution[]> {
   return fetchApi("/venue/case-types");
@@ -401,14 +398,14 @@ export async function getVenueRecommendation(
     }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "서버 오류" }));
+    const err = await res.json().catch(() => ({ detail: "サーバーエラー" }));
     onError(err.detail || `API error: ${res.status}`);
     return;
   }
   await consumeSSE(res, onChunk, onDone, onError);
 }
 
-// ── 판사 분석 API ──────────────────────────────────────────
+// ── 裁判官分析 API ──────────────────────────────────────────
 
 export function searchJudges(query: string): Promise<JudgeSearchResult[]> {
   return fetchApi(`/judges?q=${encodeURIComponent(query)}`);
@@ -440,10 +437,3 @@ export function getCollectionStatus(): Promise<CollectionStatus> {
   return fetchApi("/collection/status");
 }
 
-export async function startCollection(phase: string): Promise<void> {
-  await fetch(`${API_BASE}/collection/start/${phase}`, { method: "POST", headers: DEFAULT_HEADERS });
-}
-
-export async function stopCollection(): Promise<void> {
-  await fetch(`${API_BASE}/collection/stop`, { method: "POST", headers: DEFAULT_HEADERS });
-}

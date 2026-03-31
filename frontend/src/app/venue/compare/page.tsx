@@ -27,16 +27,16 @@ const COLORS = [
   "#78716c",
 ];
 
-// 법률 용어 → 일반 용어 매핑
+// 法律用語 → 一般用語マッピング
 const OUTCOME_LABELS: Record<string, string> = {
-  "원고승": "승소",
-  "원고패": "패소",
-  "일부인용": "일부 승소",
-  "파기환송": "원심 파기 (유리)",
-  "파기자판": "원심 파기·확정 (유리)",
-  "상고기각": "상고 기각 (불리)",
-  "상고각하": "상고 각하 (불리)",
-  "각하": "소 각하 (불리)",
+  "原告勝訴": "勝訴",
+  "原告敗訴": "敗訴",
+  "一部認容": "一部勝訴",
+  "破棄差戻": "原審破棄（有利）",
+  "破棄自判": "原審破棄・確定（有利）",
+  "上告棄却": "上告棄却（不利）",
+  "上告却下": "上告却下（不利）",
+  "却下": "訴え却下（不利）",
 };
 
 function toLabel(outcome: string): string {
@@ -45,7 +45,7 @@ function toLabel(outcome: string): string {
 
 export default function VenueComparePage() {
   return (
-    <Suspense fallback={<div className="text-center py-20 text-stone-400">로딩중...</div>}>
+    <Suspense fallback={<div className="text-center py-20 text-stone-400">読み込み中...</div>}>
       <VenueCompareContent />
     </Suspense>
   );
@@ -88,7 +88,7 @@ function VenueCompareContent() {
         setAiDone(true);
       },
       (err) => {
-        setAiText(`오류: ${err}`);
+        setAiText(`エラー: ${err}`);
         setAiLoading(false);
       }
     );
@@ -97,27 +97,27 @@ function VenueCompareContent() {
   if (courtNames.length < 2) {
     return (
       <div className="text-center py-20 text-stone-400">
-        비교할 법원을 2개 이상 선택해 주세요.
+        比較する裁判所を2箇所以上選択してください。
         <br />
         <Link href="/venue" className="text-emerald-600 underline mt-2 inline-block">
-          법원 선택으로 돌아가기
+          裁判所選択に戻る
         </Link>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="text-center py-20 text-stone-400">통계 로딩중...</div>;
+    return <div className="text-center py-20 text-stone-400">統計読み込み中...</div>;
   }
 
-  // Build comparison bar chart data for parsed outcomes (미분류 제외, 라벨 변환)
+  // Build comparison bar chart data for parsed outcomes (未分類除外、ラベル変換)
   const allOutcomes = Array.from(
-    new Set(courts.flatMap((c) => (c.outcome_distribution || []).map((d) => d.type || "미분류")))
-  ).filter((t) => t !== "미분류");
+    new Set(courts.flatMap((c) => (c.outcome_distribution || []).map((d) => d.type || "未分類")))
+  ).filter((t) => t !== "未分類");
   const outcomeChartData = allOutcomes.map((otype) => {
     const row: Record<string, string | number> = { type: toLabel(otype) };
     courts.forEach((court) => {
-      const found = (court.outcome_distribution || []).find((d) => (d.type || "미분류") === otype);
+      const found = (court.outcome_distribution || []).find((d) => (d.type || "未分類") === otype);
       row[court.court_name] = found?.count || 0;
     });
     return row;
@@ -145,13 +145,13 @@ function VenueCompareContent() {
             href="/venue"
             className="text-sm text-emerald-600 hover:underline"
           >
-            &larr; 법원 선택
+            &larr; 裁判所選択
           </Link>
           <h1 className="text-3xl font-semibold text-stone-900 mt-2">
-            관할 법원 비교
+            管轄裁判所比較
           </h1>
           <p className="text-stone-500 mt-1">
-            사건유형: <span className="font-medium text-stone-700">{caseType}</span>
+            事件類型: <span className="font-medium text-stone-700">{caseType}</span>
           </p>
         </div>
       </div>
@@ -169,7 +169,7 @@ function VenueCompareContent() {
           >
             {court.rank === 1 && (
               <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-                가장 유리한 법원
+                最も有利な裁判所
               </span>
             )}
             <h3 className="font-semibold text-stone-900 mt-2">
@@ -189,12 +189,12 @@ function VenueCompareContent() {
                   {court.acceptance_rate}%
                 </div>
                 <div className="text-xs text-stone-500">
-                  승소율
+                  認容率
                   {(() => {
                     const classified = (court.outcome_distribution || [])
-                      .filter((d) => d.type !== "미분류" && d.type)
+                      .filter((d) => d.type !== "未分類" && d.type)
                       .reduce((sum, d) => sum + d.count, 0);
-                    return classified > 0 ? ` (분류된 ${classified}건 기준)` : "";
+                    return classified > 0 ? ` (分類済${classified}件基準)` : "";
                   })()}
                 </div>
               </div>
@@ -203,28 +203,28 @@ function VenueCompareContent() {
                   <span className="font-medium text-red-600">
                     {court.dismissal_rate}%
                   </span>
-                  <span className="text-stone-400 ml-1">패소율</span>
+                  <span className="text-stone-400 ml-1">棄却率</span>
                 </div>
                 <div>
                   <span className="font-medium font-mono text-stone-700">
                     {court.total_cases}
                   </span>
-                  <span className="text-stone-400 ml-1">건</span>
+                  <span className="text-stone-400 ml-1">件</span>
                 </div>
               </div>
               {(court.unclassified_rate || 0) >= 80 && (
                 <p className="text-xs text-amber-600 bg-amber-50 rounded px-2 py-1">
-                  미분류 {court.unclassified_rate}% — 통계 신뢰도 낮음
+                  未分類 {court.unclassified_rate}% — 統計信頼度低
                 </p>
               )}
               {(court.unclassified_rate || 0) >= 20 && (court.unclassified_rate || 0) < 80 && (
                 <p className="text-xs text-stone-500 bg-stone-50 rounded px-2 py-1">
-                  미분류 {court.unclassified_rate}%
+                  未分類 {court.unclassified_rate}%
                 </p>
               )}
               {court.total_cases < 30 && (
                 <p className="text-xs text-amber-600 bg-amber-50 rounded px-2 py-1">
-                  샘플 수 부족 (30건 미만)
+                  サンプル数不足（30件未満）
                 </p>
               )}
             </div>
@@ -235,10 +235,10 @@ function VenueCompareContent() {
       {/* Outcome Comparison Chart */}
       <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
         <h2 className="text-lg font-semibold text-stone-900 mb-1">
-          판결 결과 비교
+          判決結果比較
         </h2>
         <p className="text-xs text-stone-400 mb-4">
-          각 법원에서 승소·패소·일부 승소 등 판결 결과가 몇 건인지 비교합니다.
+          各裁判所での勝訴・敗訴・一部勝訴等の判決結果件数を比較します。
         </p>
         {outcomeChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={350}>
@@ -259,7 +259,7 @@ function VenueCompareContent() {
           </ResponsiveContainer>
         ) : (
           <div className="h-[350px] flex items-center justify-center text-stone-400">
-            데이터 없음
+            データなし
           </div>
         )}
       </div>
@@ -267,10 +267,10 @@ function VenueCompareContent() {
       {/* Yearly Trend Comparison */}
       <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6">
         <h2 className="text-lg font-semibold text-stone-900 mb-1">
-          연도별 판결 추이 비교
+          年度別判決推移比較
         </h2>
         <p className="text-xs text-stone-400 mb-4">
-          각 법원의 연도별 판결 건수 추이를 비교합니다.
+          各裁判所の年度別判決件数の推移を比較します。
         </p>
         {yearlyChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
@@ -291,7 +291,7 @@ function VenueCompareContent() {
           </ResponsiveContainer>
         ) : (
           <div className="h-[300px] flex items-center justify-center text-stone-400">
-            데이터 없음
+            データなし
           </div>
         )}
       </div>
@@ -304,7 +304,7 @@ function VenueCompareContent() {
             className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6"
           >
             <h3 className="text-lg font-semibold text-stone-900 mb-4">
-              {court.court_name} 주요 판사
+              {court.court_name} 主要裁判官
             </h3>
             {court.top_judges.length > 0 ? (
               <div className="space-y-3">
@@ -319,22 +319,22 @@ function VenueCompareContent() {
                         {judge.name}
                       </span>
                       <span className="text-sm text-stone-500">
-                        {judge.case_count}건
+                        {judge.case_count}件
                       </span>
                     </div>
                     <div className="flex gap-3 mt-1 text-xs">
                       <span className="text-emerald-600">
-                        승소 {judge.acceptance_rate}%
+                        認容 {judge.acceptance_rate}%
                       </span>
                       <span className="text-red-500">
-                        패소 {judge.dismissal_rate}%
+                        棄却 {judge.dismissal_rate}%
                       </span>
                     </div>
                   </Link>
                 ))}
               </div>
             ) : (
-              <p className="text-stone-400 text-sm">판사 데이터 없음</p>
+              <p className="text-stone-400 text-sm">裁判官データなし</p>
             )}
           </div>
         ))}
@@ -344,55 +344,55 @@ function VenueCompareContent() {
       <div className="bg-stone-50 rounded-2xl border border-stone-200 p-6">
         <details>
           <summary className="cursor-pointer text-sm font-semibold text-stone-600 hover:text-stone-800">
-            분석 근거 및 방법론
+            分析根拠および方法論
           </summary>
           <div className="mt-4 space-y-4 text-sm text-stone-600 leading-relaxed">
             <div>
-              <h4 className="font-semibold text-stone-700 mb-1">데이터 출처</h4>
+              <h4 className="font-semibold text-stone-700 mb-1">データ出典</h4>
               <p>
-                대법원 판례 공개 시스템(law.go.kr)에서 수집한 판결문 원문을 규칙 기반으로 분석하여 산출합니다.
+                裁判所の判例公開システムから収集した判決文原文をルールベースで分析して算出しています。
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-stone-700 mb-1">결과 분류 방법</h4>
+              <h4 className="font-semibold text-stone-700 mb-1">結果分類方法</h4>
               <ul className="space-y-1 ml-4 list-disc">
                 <li>
-                  <span className="font-medium">승소</span>: 판결문 주문에 &quot;지급하라&quot;, &quot;인도하라&quot;, &quot;이행하라&quot;, &quot;취소한다&quot; 등 원고 청구를 받아들이는 표현이 포함된 경우
+                  <span className="font-medium">勝訴</span>: 判決主文に&quot;支払え&quot;、&quot;引き渡せ&quot;、&quot;履行せよ&quot;、&quot;取り消す&quot;等の原告請求を認容する表現が含まれる場合
                 </li>
                 <li>
-                  <span className="font-medium">패소</span>: 주문에 &quot;청구를 기각&quot;, &quot;항소를 기각&quot; 등 원고 청구를 거부하는 표현이 포함된 경우
+                  <span className="font-medium">敗訴</span>: 主文に&quot;請求を棄却&quot;、&quot;控訴を棄却&quot;等の原告請求を棄却する表現が含まれる場合
                 </li>
                 <li>
-                  <span className="font-medium">일부 승소</span>: 청구의 일부만 받아들여진 경우 (승소와 패소 표현이 동시에 존재)
+                  <span className="font-medium">一部勝訴</span>: 請求の一部のみが認容された場合（勝訴と敗訴の表現が同時に存在）
                 </li>
                 <li>
-                  <span className="font-medium">원심 파기 (유리)</span> (대법원): 하급심 판결에 오류가 있어 다시 재판하라고 돌려보낸 경우 — 원고에게 유리
+                  <span className="font-medium">原審破棄（有利）</span>（最高裁）: 下級審判決に誤りがあり差し戻した場合 — 原告に有利
                 </li>
                 <li>
-                  <span className="font-medium">상고 기각 (불리)</span> (대법원): 하급심 판결을 그대로 유지한 경우 — 원고에게 불리
+                  <span className="font-medium">上告棄却（不利）</span>（最高裁）: 下級審判決をそのまま維持した場合 — 原告に不利
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-stone-700 mb-1">승소율 계산</h4>
+              <h4 className="font-semibold text-stone-700 mb-1">認容率の計算</h4>
               <p>
-                승소율 = (승소 + 일부 승소 + 원심 파기) / 분류된 판결 수 &times; 100
+                認容率 = (勝訴 + 一部勝訴 + 原審破棄) / 分類済判決数 &times; 100
               </p>
               <p>
-                패소율 = (패소 + 상고 기각 + 소 각하) / 분류된 판결 수 &times; 100
+                棄却率 = (敗訴 + 上告棄却 + 訴え却下) / 分類済判決数 &times; 100
               </p>
               <p className="text-stone-400 mt-1">
-                ※ 판결문에서 결과를 파악할 수 없는 건(미분류)은 계산에서 제외됩니다.
+                ※ 判決文から結果を把握できない件（未分類）は計算から除外されます。
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-stone-700 mb-1">한계 및 유의사항</h4>
+              <h4 className="font-semibold text-stone-700 mb-1">限界および注意事項</h4>
               <ul className="space-y-1 ml-4 list-disc">
-                <li>행정사건은 &quot;처분청 승소/패소&quot;로 명시되어 높은 정확도를 보입니다.</li>
-                <li>민사/형사 사건은 판결문 텍스트 파싱 기반으로, 복잡한 주문의 경우 미분류될 수 있습니다.</li>
-                <li>미분류 비율이 높은 법원은 통계 신뢰도가 낮을 수 있습니다.</li>
-                <li>판례 수가 30건 미만인 경우 통계적 의미가 제한적입니다.</li>
-                <li>대법원 원심 파기는 원고에게 유리한 결과로 분류하나, 재심리 후 결과는 다를 수 있습니다.</li>
+                <li>行政事件は&quot;処分庁勝訴/敗訴&quot;と明示されており、高い精度を示します。</li>
+                <li>民事/刑事事件は判決文テキスト解析に基づくため、複雑な主文の場合は未分類となる場合があります。</li>
+                <li>未分類の割合が高い裁判所は統計信頼度が低い可能性があります。</li>
+                <li>判例数が30件未満の場合、統計的意味が限定的です。</li>
+                <li>最高裁の原審破棄は原告に有利な結果として分類しますが、再審理後の結果は異なる場合があります。</li>
               </ul>
             </div>
           </div>
@@ -402,11 +402,11 @@ function VenueCompareContent() {
       {/* AI Recommendation */}
       <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-8">
         <h2 className="text-xl font-semibold text-stone-900 mb-2">
-          AI 관할 추천
+          AI管轄推薦
         </h2>
         <p className="text-sm text-stone-500 mb-6">
-          통계 데이터를 기반으로 AI가 최적 관할 법원을 분석합니다.
-          사건 개요를 입력하면 더 구체적인 추천을 받을 수 있습니다.
+          統計データに基づきAIが最適な管轄裁判所を分析します。
+          事件概要を入力するとより具体的な推薦を受けられます。
         </p>
 
         {/* Optional case description */}
@@ -415,13 +415,13 @@ function VenueCompareContent() {
             onClick={() => setShowDescInput(!showDescInput)}
             className="text-sm text-emerald-600 hover:underline"
           >
-            {showDescInput ? "사건 개요 입력 숨기기" : "사건 개요 입력하기 (선택)"}
+            {showDescInput ? "事件概要入力を隠す" : "事件概要を入力する（任意）"}
           </button>
           {showDescInput && (
             <textarea
               value={caseDescription}
               onChange={(e) => setCaseDescription(e.target.value)}
-              placeholder="사건의 주요 쟁점, 청구 내용 등을 입력하세요..."
+              placeholder="事件の主要争点、請求内容等を入力してください..."
               rows={4}
               className="mt-2 w-full border border-stone-200 rounded-lg px-4 py-3 text-sm text-stone-700 resize-y"
             />
@@ -433,7 +433,7 @@ function VenueCompareContent() {
           disabled={aiLoading}
           className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 active:scale-[0.98] transition disabled:opacity-50"
         >
-          {aiLoading ? "분석 중..." : "AI 관할 추천 받기"}
+          {aiLoading ? "分析中..." : "AI管轄推薦を受ける"}
         </button>
 
         {/* AI Output */}
@@ -447,7 +447,7 @@ function VenueCompareContent() {
             </div>
             {aiDone && (
               <p className="text-xs text-stone-400 mt-4 pt-4 border-t border-stone-200">
-                본 분석은 과거 판결 통계에 기반한 참고 자료이며, 실제 소송 결과를 보장하지 않습니다.
+                本分析は過去の判決統計に基づく参考資料であり、実際の訴訟結果を保証するものではありません。
               </p>
             )}
           </div>

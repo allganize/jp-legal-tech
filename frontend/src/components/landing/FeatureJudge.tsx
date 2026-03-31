@@ -4,44 +4,44 @@ import { ChartBar, UserCircle, MagnifyingGlass } from "@phosphor-icons/react";
 import FadeIn from "./FadeIn";
 
 const features = [
-  { icon: ChartBar, text: "판결 성향 통계 분석" },
-  { icon: UserCircle, text: "AI 판사 페르소나 생성" },
-  { icon: MagnifyingGlass, text: "판사별 전문 분야 탐색" },
+  { icon: ChartBar, text: "判決傾向の統計分析" },
+  { icon: UserCircle, text: "AI裁判官ペルソナ生成" },
+  { icon: MagnifyingGlass, text: "裁判官別専門分野の探索" },
 ];
 
 export default function FeatureJudge() {
   return (
-    <section id="features" className="py-24 md:py-32">
+    <section id="features" className="py-24 md:py-32 bg-[#FAFAF8]">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-12 md:gap-16 items-center">
           {/* Left: text */}
           <FadeIn direction="left">
             <div>
-              <span className="font-mono text-sm text-emerald-600">01</span>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-stone-900 mt-2">
-                판사의 판결 패턴을
+              <span className="font-mono text-sm text-[#C5A55A]">01</span>
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#2D2D2D] mt-2">
+                裁判官の判決パターンを
                 <br />
-                AI가 분석합니다
+                AIが分析します
               </h2>
-              <p className="text-stone-500 text-base max-w-sm leading-relaxed mt-4">
-                수천 건의 판결 데이터를 기반으로 판사별 성향을 분석하고, 소송
-                전략 수립에 필요한 인사이트를 제공합니다.
+              <p className="text-[#2D2D2D]/60 text-base max-w-sm leading-relaxed mt-4">
+                数千件の判決データに基づき裁判官別の傾向を分析し、訴訟戦略
+                策定に必要なインサイトを提供します。
               </p>
 
               <div className="mt-6 space-y-3">
                 {features.map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-3">
-                    <Icon size={20} className="text-emerald-600 shrink-0" />
-                    <span className="text-sm text-stone-600">{text}</span>
+                    <Icon size={20} className="text-[#1B2A4A] shrink-0" />
+                    <span className="text-sm text-[#2D2D2D]/70">{text}</span>
                   </div>
                 ))}
               </div>
 
               <a
                 href="/dashboard"
-                className="inline-block mt-6 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                className="inline-block mt-6 text-sm font-medium text-[#1B2A4A] hover:text-[#243656] transition-colors"
               >
-                판사 검색하기 &rarr;
+                裁判官を検索する &rarr;
               </a>
             </div>
           </FadeIn>
@@ -50,28 +50,28 @@ export default function FeatureJudge() {
           <FadeIn direction="up" delay={0.15}>
             <div className="rounded-2xl bg-white border border-stone-200 p-8 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
               <div className="mb-6">
-                <p className="font-semibold text-stone-900">김정원 판사</p>
-                <p className="text-sm text-stone-500">서울중앙지방법원</p>
+                <p className="font-semibold text-[#2D2D2D]">田中太郎 裁判官</p>
+                <p className="text-sm text-[#2D2D2D]/50">東京地方裁判所</p>
               </div>
 
               <div className="space-y-4">
                 {[
-                  { label: "인용률", width: "70%" },
-                  { label: "각하율", width: "45%" },
-                  { label: "기각률", width: "85%" },
+                  { label: "認容率", width: "70%" },
+                  { label: "却下率", width: "45%" },
+                  { label: "棄却率", width: "85%" },
                 ].map((bar) => (
                   <div key={bar.label}>
                     <div className="flex justify-between mb-1">
-                      <span className="text-xs text-stone-400">
+                      <span className="text-xs text-[#2D2D2D]/40">
                         {bar.label}
                       </span>
-                      <span className="text-xs font-mono text-stone-400">
+                      <span className="text-xs font-mono text-[#2D2D2D]/40">
                         {bar.width}
                       </span>
                     </div>
-                    <div className="h-2 rounded-full bg-emerald-100">
+                    <div className="h-2 rounded-full bg-[#E8EDF5]">
                       <div
-                        className="h-2 rounded-full bg-emerald-500"
+                        className="h-2 rounded-full bg-[#1B2A4A]"
                         style={{ width: bar.width }}
                       />
                     </div>

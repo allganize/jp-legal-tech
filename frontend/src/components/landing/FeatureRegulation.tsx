@@ -4,27 +4,27 @@ import { Bell, FileText, EnvelopeSimple } from "@phosphor-icons/react";
 import FadeIn from "./FadeIn";
 
 const features = [
-  { icon: Bell, text: "실시간 규제 모니터링" },
-  { icon: FileText, text: "리서치 메모 자동 생성" },
-  { icon: EnvelopeSimple, text: "클라이언트 안내문 생성" },
+  { icon: Bell, text: "リアルタイム規制モニタリング" },
+  { icon: FileText, text: "リサーチメモ自動生成" },
+  { icon: EnvelopeSimple, text: "クライアント案内文生成" },
 ];
 
 const regulations = [
   {
-    title: "AI 기본법 시행령 개정안",
-    level: "높음",
+    title: "AI基本法施行令改正案",
+    level: "高",
     color: "bg-red-500",
     date: "2025.12.15",
   },
   {
-    title: "개인정보 처리 가이드라인",
-    level: "중간",
+    title: "個人情報処理ガイドライン",
+    level: "中",
     color: "bg-amber-500",
     date: "2025.12.12",
   },
   {
-    title: "전자금융거래법 개정",
-    level: "낮음",
+    title: "電子金融取引法改正",
+    level: "低",
     color: "bg-emerald-500",
     date: "2025.12.10",
   },
@@ -40,13 +40,13 @@ export default function FeatureRegulation() {
             <div className="md:row-span-2 rounded-2xl bg-white border border-stone-200 p-8 md:p-10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] h-full">
               <span className="font-mono text-sm text-emerald-600">03</span>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-stone-900 mt-2">
-                규제 변화를 자동으로
+                規制変化を自動で
                 <br />
-                추적하고 대응합니다
+                追跡し対応します
               </h2>
               <p className="text-stone-500 text-base max-w-md leading-relaxed mt-4">
-                최신 법률 및 규제 변경 사항을 실시간으로 모니터링하고, AI가
-                자동으로 리서치 메모와 클라이언트 안내문을 생성합니다.
+                最新の法律および規制変更事項をリアルタイムでモニタリングし、AIが
+                自動でリサーチメモとクライアント案内文を生成します。
               </p>
 
               <div className="mt-6 space-y-3">
@@ -62,7 +62,7 @@ export default function FeatureRegulation() {
                 href="/regulation"
                 className="inline-block mt-6 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
               >
-                규제 피드 보기 &rarr;
+                規制フィードを見る &rarr;
               </a>
             </div>
           </FadeIn>
@@ -71,7 +71,7 @@ export default function FeatureRegulation() {
           <FadeIn delay={0.1}>
             <div className="rounded-2xl bg-white border border-stone-200 p-6">
               <h3 className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-4">
-                최신 규제
+                最新規制
               </h3>
               <div className="space-y-3">
                 {regulations.map((reg) => (
@@ -93,10 +93,10 @@ export default function FeatureRegulation() {
           <FadeIn delay={0.2}>
             <div className="rounded-2xl bg-white border border-stone-200 p-6">
               <h3 className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-4">
-                자동 생성 문서
+                自動生成文書
               </h3>
               <div className="flex flex-wrap gap-2 mb-4">
-                {["리서치 메모", "클라이언트 안내문", "뉴스레터"].map((tag) => (
+                {["リサーチメモ", "クライアント案内文", "ニュースレター"].map((tag) => (
                   <span
                     key={tag}
                     className="bg-stone-100 rounded-lg px-3 py-2 text-xs text-stone-600"
