@@ -3,13 +3,13 @@ from sqlalchemy.orm import Session
 
 from backend.models import Case, CaseJudge, Judge
 
-# parsed_outcome 기반 유/불리 분류
-FAVORABLE_OUTCOMES = {"원고승", "일부인용", "파기환송", "파기자판"}
-UNFAVORABLE_OUTCOMES = {"원고패", "상고기각", "각하", "상고각하"}
+# result 基準の有利/不利分類
+FAVORABLE_OUTCOMES = {"認容", "一部認容", "破棄差戻", "破棄自判", "取消", "変更"}
+UNFAVORABLE_OUTCOMES = {"棄却", "却下", "上告棄却", "上告不受理"}
 
 
 def get_decision_type_mapping() -> dict:
-    """유리/불리 판결유형 매핑을 반환한다."""
+    """有利/不利の判決類型マッピングを返す。"""
     return {
         "favorable": sorted(FAVORABLE_OUTCOMES),
         "unfavorable": sorted(UNFAVORABLE_OUTCOMES),
@@ -17,24 +17,24 @@ def get_decision_type_mapping() -> dict:
 
 
 def list_case_types(db: Session) -> list[dict]:
-    """사건유형 목록 + 건수."""
+    """事件種類一覧 + 件数。"""
     rows = db.execute(
-        select(Case.case_type_name, func.count().label("count"))
-        .where(Case.case_type_name.isnot(None))
-        .group_by(Case.case_type_name)
+        select(Case.trial_type, func.count().label("count"))
+        .where(Case.trial_type.isnot(None))
+        .group_by(Case.trial_type)
         .order_by(func.count().desc())
     ).all()
-    return [{"type": r.case_type_name, "count": r.count} for r in rows]
+    return [{"type": r.trial_type, "count": r.count} for r in rows]
 
 
 def list_courts(db: Session, case_type: str | None = None) -> list[dict]:
-    """법원 목록 + 건수 + 간략 인용률 (사건유형 필터 가능)."""
+    """裁判所一覧 + 件数 + 簡易認容率（事件種類フィルタ可能）。"""
     favorable_cases = [
-        func.sum(func.iif(Case.parsed_outcome == o, 1, 0))
+        func.sum(func.iif(Case.result == o, 1, 0))
         for o in FAVORABLE_OUTCOMES
     ]
     unfavorable_cases = [
-        func.sum(func.iif(Case.parsed_outcome == o, 1, 0))
+        func.sum(func.iif(Case.result == o, 1, 0))
         for o in UNFAVORABLE_OUTCOMES
     ]
     favorable_sum = sum(favorable_cases)
@@ -50,7 +50,7 @@ def list_courts(db: Session, case_type: str | None = None) -> list[dict]:
         .where(Case.court_name.isnot(None), Case.court_name != "")
     )
     if case_type:
-        query = query.where(Case.case_type_name == case_type)
+        query = query.where(Case.trial_type == case_type)
     rows = db.execute(
         query.group_by(Case.court_name).order_by(func.count().desc())
     ).all()
@@ -69,10 +69,10 @@ def list_courts(db: Session, case_type: str | None = None) -> list[dict]:
 
 
 def _compute_rates(outcome_dist: list[dict]) -> tuple[float, float, float]:
-    """parsed_outcome 분포에서 인용률/기각률/미분류율을 계산한다.
+    """result分布から認容率/棄却率/未分類率を計算する。
 
-    인용률과 기각률은 분류된 건수 기준으로 계산한다 (미분류 제외).
-    미분류율은 전체 건수 대비 비율로 별도 산출한다.
+    認容率と棄却率は分類済み件数基準で計算する（未分類を除外）。
+    未分類率は全体件数対比の比率で別途算出する。
     """
     total = sum(d["count"] for d in outcome_dist)
     if total == 0:
@@ -91,12 +91,12 @@ def _compute_rates(outcome_dist: list[dict]) -> tuple[float, float, float]:
 
 
 def get_court_stats(db: Session, court_name: str, case_type: str | None = None) -> dict:
-    """법원별 핵심 통계를 반환한다."""
+    """裁判所別の核心統計を返す。"""
 
     def _base_filter(query):
         query = query.where(Case.court_name == court_name)
         if case_type:
-            query = query.where(Case.case_type_name == case_type)
+            query = query.where(Case.trial_type == case_type)
         return query
 
     # Total cases
@@ -104,31 +104,31 @@ def get_court_stats(db: Session, court_name: str, case_type: str | None = None) 
         _base_filter(select(func.count()).select_from(Case))
     ).scalar() or 0
 
-    # parsed_outcome 분포 (인용률/기각률 계산 기반)
+    # result 分布（認容率/棄却率の計算基盤）
     outcome_rows = db.execute(
         _base_filter(
-            select(Case.parsed_outcome, func.count().label("count"))
+            select(Case.result, func.count().label("count"))
         )
-        .group_by(Case.parsed_outcome)
+        .group_by(Case.result)
         .order_by(func.count().desc())
     ).all()
-    outcome_dist = [{"type": r.parsed_outcome or "미분류", "count": r.count} for r in outcome_rows]
+    outcome_dist = [{"type": r.result or "未分類", "count": r.count} for r in outcome_rows]
 
-    # Decision type distribution (원본 — 차트용)
+    # Decision type distribution (result_type — チャート用)
     decision_rows = db.execute(
         _base_filter(
-            select(Case.decision_type, func.count().label("count"))
+            select(Case.result_type, func.count().label("count"))
         )
-        .group_by(Case.decision_type)
+        .group_by(Case.result_type)
         .order_by(func.count().desc())
     ).all()
 
-    # Case type distribution
+    # Case type distribution (trial_type)
     case_type_rows = db.execute(
         _base_filter(
-            select(Case.case_type_name, func.count().label("count"))
+            select(Case.trial_type, func.count().label("count"))
         )
-        .group_by(Case.case_type_name)
+        .group_by(Case.trial_type)
         .order_by(func.count().desc())
     ).all()
 
@@ -167,7 +167,7 @@ def get_court_stats(db: Session, court_name: str, case_type: str | None = None) 
         .where(Case.court_name == court_name)
     )
     if case_type:
-        judge_query = judge_query.where(Case.case_type_name == case_type)
+        judge_query = judge_query.where(Case.trial_type == case_type)
     judge_rows = db.execute(
         judge_query
         .group_by(Judge.id, Judge.name)
@@ -175,18 +175,18 @@ def get_court_stats(db: Session, court_name: str, case_type: str | None = None) 
         .limit(10)
     ).all()
 
-    # Per-judge parsed_outcome distribution
+    # Per-judge result distribution
     top_judges = []
     for jr in judge_rows:
         jd_query = (
-            select(Case.parsed_outcome, func.count().label("count"))
+            select(Case.result, func.count().label("count"))
             .join(CaseJudge, CaseJudge.case_id == Case.id)
             .where(CaseJudge.judge_id == jr.id, Case.court_name == court_name)
         )
         if case_type:
-            jd_query = jd_query.where(Case.case_type_name == case_type)
-        jd_rows = db.execute(jd_query.group_by(Case.parsed_outcome)).all()
-        judge_outcome_dist = [{"type": r.parsed_outcome or "미분류", "count": r.count} for r in jd_rows]
+            jd_query = jd_query.where(Case.trial_type == case_type)
+        jd_rows = db.execute(jd_query.group_by(Case.result)).all()
+        judge_outcome_dist = [{"type": r.result or "未分類", "count": r.count} for r in jd_rows]
         j_acc, j_dis, _ = _compute_rates(judge_outcome_dist)
         top_judges.append({
             "judge_id": jr.id,
@@ -210,10 +210,10 @@ def get_court_stats(db: Session, court_name: str, case_type: str | None = None) 
         "unclassified_rate": unclassified_rate,
         "outcome_distribution": outcome_dist,
         "decision_type_distribution": [
-            {"type": r.decision_type or "미분류", "count": r.count} for r in decision_rows
+            {"type": r.result_type or "未分類", "count": r.count} for r in decision_rows
         ],
         "case_type_distribution": [
-            {"type": r.case_type_name or "미분류", "count": r.count} for r in case_type_rows
+            {"type": r.trial_type or "未分類", "count": r.count} for r in case_type_rows
         ],
         "yearly_distribution": [{"year": r.year, "count": r.count} for r in yearly_rows],
         "top_judges": top_judges,
@@ -223,9 +223,9 @@ def get_court_stats(db: Session, court_name: str, case_type: str | None = None) 
 def compare_courts(
     db: Session, court_names: list[str], case_type: str | None = None
 ) -> dict:
-    """복수 법원의 통계를 병렬 집계하여 반환한다."""
+    """複数裁判所の統計を並列集計して返す。"""
     courts = [get_court_stats(db, name, case_type) for name in court_names]
-    # 인용률 기준 순위 부여
+    # 認容率基準で順位付与
     sorted_courts = sorted(courts, key=lambda c: c["acceptance_rate"], reverse=True)
     for rank, court in enumerate(sorted_courts, 1):
         court["rank"] = rank
