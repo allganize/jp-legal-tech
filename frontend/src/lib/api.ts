@@ -553,3 +553,120 @@ export function getCollectionStatus(): Promise<CollectionStatus> {
   return fetchApi("/collection/status");
 }
 
+// ===== Strategy Simulator =====
+export interface StrategySession {
+  id: string;
+  case_type: string;
+  party_position: string;
+  overview: string;
+  judge_id: number | null;
+  current_step: number;
+  created_at: string;
+}
+
+export interface StrategyIssue {
+  id: number;
+  rank: number;
+  name: string;
+  category: string;
+  score: number;
+  frequency: number;
+  win_rate: number;
+  lose_rate: number;
+  other_rate: number;
+  selected: boolean;
+}
+
+export interface StrategyItemData {
+  id: number;
+  side: string;
+  title: string;
+  description: string;
+  strength_pct: number;
+  score_pct: number;
+  precedent_count: number;
+}
+
+export interface ReviewItemData {
+  id: number;
+  side: string;
+  title: string;
+  description: string;
+  strength?: string;
+  effectiveness?: string;
+  precedent_ref?: string;
+  citation_rate?: string;
+  pair_index?: number;
+}
+
+export async function createStrategySession(data: {
+  case_type: string;
+  party_position: string;
+  overview: string;
+  judge_id: number | null;
+}): Promise<StrategySession> {
+  const res = await fetch(`${API_BASE}/strategy/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...DEFAULT_HEADERS },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function getStrategySession(sessionId: string): Promise<StrategySession> {
+  const res = await fetch(`${API_BASE}/strategy/${sessionId}`, {
+    headers: DEFAULT_HEADERS,
+  });
+  if (!res.ok) throw new Error("Session not found");
+  return res.json();
+}
+
+export async function analyzeStrategyIssues(sessionId: string): Promise<{
+  issues: StrategyIssue[];
+  total_precedents: number;
+}> {
+  const res = await fetch(`${API_BASE}/strategy/${sessionId}/issues`, {
+    method: "POST",
+    headers: DEFAULT_HEADERS,
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function generateStrategies(sessionId: string, selectedIssueIds: number[]): Promise<{
+  attacks: StrategyItemData[];
+  defenses: StrategyItemData[];
+}> {
+  const res = await fetch(`${API_BASE}/strategy/${sessionId}/strategies`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...DEFAULT_HEADERS },
+    body: JSON.stringify({ selected_issue_ids: selectedIssueIds }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function createStrategyBrief(sessionId: string): Promise<{ brief_id: number }> {
+  const res = await fetch(`${API_BASE}/strategy/${sessionId}/brief`, {
+    method: "POST",
+    headers: DEFAULT_HEADERS,
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function generateStrategyReview(sessionId: string): Promise<{
+  counterarguments: ReviewItemData[];
+  responses: ReviewItemData[];
+  readiness_score: number;
+  critical_weakness: string | null;
+}> {
+  const res = await fetch(`${API_BASE}/strategy/${sessionId}/review`, {
+    method: "POST",
+    headers: DEFAULT_HEADERS,
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+

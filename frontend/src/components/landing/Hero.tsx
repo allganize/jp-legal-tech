@@ -16,19 +16,20 @@ export default function Hero() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <a
             href="/"
-            className="text-lg font-semibold tracking-tight text-[#1B2A4A]"
+            className="text-lg font-semibold tracking-tight text-stone-800"
           >
             判例AI
           </a>
           <div className="flex gap-1">
             {[
               { label: "裁判官分析", href: "/dashboard" },
-              { label: "管轄最適化", href: "/venue" },
+              { label: "類似判例検索", href: "/search" },
+              { label: "戦略シミュレーター", href: "/strategy" },
             ].map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="px-3 py-1.5 text-sm rounded-lg text-[#2D2D2D]/60 hover:bg-[#E8EDF5] hover:text-[#1B2A4A] transition-colors"
+                className="px-3 py-1.5 text-sm rounded-lg text-[#2D2D2D]/60 hover:bg-emerald-50 hover:text-stone-800 transition-colors"
               >
                 {link.label}
               </a>
@@ -46,7 +47,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={stagger(0)}
-              className="text-4xl md:text-6xl tracking-tighter font-bold text-[#1B2A4A]"
+              className="text-4xl md:text-6xl tracking-tighter font-bold text-stone-800"
             >
               判例AI
             </motion.h1>
@@ -75,7 +76,7 @@ export default function Hero() {
             >
               <a
                 href="/dashboard"
-                className="bg-[#1B2A4A] text-white rounded-lg px-6 py-3 font-medium hover:bg-[#243656] transition active:scale-[0.98]"
+                className="bg-emerald-700 text-white rounded-lg px-6 py-3 font-medium hover:bg-emerald-800 transition active:scale-[0.98]"
               >
                 今すぐ始める
               </a>
@@ -87,7 +88,7 @@ export default function Hero() {
                     .getElementById("features")
                     ?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className="border border-[#1B2A4A] text-[#1B2A4A] rounded-lg px-6 py-3 font-medium hover:bg-[#E8EDF5] transition"
+                className="border border-emerald-700 text-stone-800 rounded-lg px-6 py-3 font-medium hover:bg-emerald-50 transition"
               >
                 機能を見る
               </a>
@@ -102,7 +103,7 @@ export default function Hero() {
             className="relative hidden md:flex items-center justify-center h-[420px]"
           >
             {/* Vertical gold accent line */}
-            <div className="absolute left-1/2 -translate-x-1/2 w-[2px] h-72 bg-gradient-to-b from-transparent via-[#C5A55A] to-transparent" />
+            <div className="absolute left-1/2 -translate-x-1/2 w-[2px] h-72 bg-gradient-to-b from-transparent via-emerald-400 to-transparent" />
 
             {/* Mini stat cards floating beside the line */}
             <motion.div
@@ -112,7 +113,7 @@ export default function Hero() {
               className="absolute top-12 left-[55%] bg-white border border-stone-200 rounded-xl px-5 py-4 shadow-sm"
             >
               <p className="text-xs text-[#2D2D2D]/50 mb-1">裁判官プロフィール</p>
-              <p className="font-semibold text-[#1B2A4A]">田中太郎</p>
+              <p className="font-semibold text-stone-800">田中太郎</p>
               <p className="text-xs text-[#2D2D2D]/40 mt-0.5">東京地方裁判所</p>
             </motion.div>
 
@@ -124,8 +125,8 @@ export default function Hero() {
             >
               <p className="text-xs text-[#2D2D2D]/50 mb-1">認容率</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold font-mono text-[#1B2A4A]">72.4</span>
-                <span className="text-sm font-mono text-[#C5A55A]">%</span>
+                <span className="text-lg font-bold font-mono text-stone-800">72.4</span>
+                <span className="text-sm font-mono text-emerald-400">%</span>
               </div>
             </motion.div>
 
@@ -137,8 +138,8 @@ export default function Hero() {
             >
               <p className="text-xs text-[#2D2D2D]/50 mb-1">分析済み判例</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold font-mono text-[#1B2A4A]">65,466</span>
-                <span className="text-sm font-mono text-[#C5A55A]">件</span>
+                <span className="text-lg font-bold font-mono text-stone-800">65,466</span>
+                <span className="text-sm font-mono text-emerald-400">件</span>
               </div>
             </motion.div>
           </motion.div>

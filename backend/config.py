@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
     # Google Gemini / File Search
     google_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.1-pro-preview"
     file_search_store_id: str = ""
 
     # Server

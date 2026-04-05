@@ -3,7 +3,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api import agent, cases, collection, judges, regulation, search, venue
+from backend.api import agent, cases, collection, judges, search, strategy, venue
+
+try:
+    from backend.api import regulation
+except ImportError:
+    regulation = None  # type: ignore
 from backend.config import settings
 from backend.database import init_db
 
@@ -16,11 +21,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="裁判官判決分析ダッシュボード", version="0.1.0", lifespan=lifespan)
 
-_cors_origins = (
-    [settings.frontend_url]
-    if settings.frontend_url and settings.frontend_url != "http://localhost:3000"
-    else ["*"]
-)
+_cors_origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
@@ -35,7 +36,9 @@ app.include_router(collection.router, prefix="/api/collection", tags=["collectio
 app.include_router(agent.router, prefix="/api/agent", tags=["agent"])
 app.include_router(venue.router, prefix="/api/venue", tags=["venue"])
 app.include_router(search.router, prefix="/api/search", tags=["search"])
-app.include_router(regulation.router, prefix="/api/regulation", tags=["regulation"])
+if regulation:
+    app.include_router(regulation.router, prefix="/api/regulation", tags=["regulation"])
+app.include_router(strategy.router, prefix="/api/strategy", tags=["strategy"])
 
 
 @app.get("/api/health")

@@ -40,11 +40,11 @@ export default function AnimatedCounter({
   return (
     <div ref={ref}>
       <div className="flex items-baseline gap-1">
-        <motion.span className="text-4xl md:text-5xl font-bold font-mono text-[#C5A55A]">
+        <motion.span className="text-4xl md:text-5xl font-bold font-mono text-emerald-400">
           {rounded}
         </motion.span>
         {suffix && (
-          <span className="text-3xl md:text-4xl font-bold font-mono text-[#C5A55A]">
+          <span className="text-3xl md:text-4xl font-bold font-mono text-emerald-400">
             {suffix}
           </span>
         )}

@@ -2,9 +2,11 @@
 
 import asyncio
 import json
+import logging
 import re
 from collections.abc import AsyncGenerator
 
+import anthropic
 from google import genai
 from google.genai import types
 from pydantic import BaseModel
@@ -13,6 +15,8 @@ from sqlalchemy.orm import Session
 
 from backend.config import settings
 from backend.models import Case
+
+logger = logging.getLogger(__name__)
 
 _semaphore = asyncio.Semaphore(3)
 
@@ -61,6 +65,48 @@ def _get_client() -> genai.Client:
     if not settings.google_api_key:
         raise ValueError("GOOGLE_API_KEYが設定されていません。")
     return genai.Client(api_key=settings.google_api_key)
+
+
+def _get_anthropic_client() -> anthropic.AsyncAnthropic:
+    if not settings.anthropic_api_key:
+        raise ValueError("ANTHROPIC_API_KEYが設定されていません。")
+    return anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+
+
+async def _claude_analyze(query: str, cases_summary: str) -> str:
+    """Claude Opus 4.6 extended thinking で判例分析を行う。"""
+    try:
+        client = _get_anthropic_client()
+        response = await client.messages.create(
+            model="claude-opus-4-20250514",
+            max_tokens=16000,
+            thinking={
+                "type": "enabled",
+                "budget_tokens": 10000,
+            },
+            messages=[{
+                "role": "user",
+                "content": f"""あなたは日本の判例分析の専門家です。以下の検索クエリに対して、見つかった判例の分析を行ってください。
+
+## 検索クエリ
+{query}
+
+## 見つかった判例
+{cases_summary}
+
+## 分析指示
+1. 各判例とクエリの事実関係の類似点を具体的に説明してください
+2. 判例の法的意義と実務への示唆を述べてください
+3. 関連する法律条文や判例法理に言及してください
+4. Markdown形式で構造化して回答してください"""
+            }],
+        )
+        # Extract text blocks (skip thinking blocks)
+        text_parts = [block.text for block in response.content if block.type == "text"]
+        return "\n".join(text_parts)
+    except Exception as e:
+        logger.warning("Claude analysis failed, falling back to Gemini: %s", e)
+        return ""
 
 
 def _store_name() -> str:
@@ -286,11 +332,19 @@ async def search_similar_cases(
                 chunk_text=(case.case_gist or case.gist or "")[:300],
             ))
 
+    # ── Claude Opus 4.6 extended thinking で深層分析 ──
+    final_cases = cited_chunks[:top_k]
+    cases_summary = "\n".join(
+        f"- {c.case_number} ({c.court_name}, {c.decision_date}): {c.chunk_text[:150]}"
+        for c in final_cases
+    )
+    claude_analysis = await _claude_analyze(query, cases_summary)
+
     return SimilarCaseResult(
         query=query,
         total_found=len(cited_chunks),
-        cases=cited_chunks[:top_k],
-        analysis=first_analysis or None,
+        cases=final_cases,
+        analysis=claude_analysis or first_analysis or None,
     )
 
 

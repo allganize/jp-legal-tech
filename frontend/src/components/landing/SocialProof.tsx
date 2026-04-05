@@ -5,7 +5,7 @@ import AnimatedCounter from "./AnimatedCounter";
 
 export default function SocialProof() {
   return (
-    <section className="bg-[#1B2A4A] py-16 md:py-20">
+    <section className="bg-emerald-700 py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
           <FadeIn delay={0}>
@@ -25,10 +25,10 @@ export default function SocialProof() {
           <FadeIn delay={0.2}>
             <div>
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl md:text-5xl font-bold font-mono text-[#C5A55A]">
+                <span className="text-4xl md:text-5xl font-bold font-mono text-emerald-400">
                   80年
                 </span>
-                <span className="text-3xl md:text-4xl font-bold font-mono text-[#C5A55A]">
+                <span className="text-3xl md:text-4xl font-bold font-mono text-emerald-400">
                   +
                 </span>
               </div>

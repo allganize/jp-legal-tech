@@ -68,7 +68,7 @@ export default function Dashboard() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="裁判官名で検索..."
             className="w-full px-6 py-4 text-lg border-2 border-stone-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none shadow-sm bg-white text-stone-800 placeholder-stone-400"
-            autoFocus
+            suppressHydrationWarning
           />
           {loading && (
             <div className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400">

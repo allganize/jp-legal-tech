@@ -6,9 +6,8 @@ import { useI18n } from "@/lib/i18n";
 
 const NAV_KEYS = [
   { href: "/dashboard", key: "nav.judge" },
-  { href: "/venue", key: "nav.venue" },
   { href: "/search", key: "nav.search" },
-  { href: "/regulation", key: "nav.regulation" },
+  { href: "/strategy", key: "nav.strategy" },
 ];
 
 export default function ConditionalShell({
@@ -32,7 +31,7 @@ export default function ConditionalShell({
       <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-4 py-3 md:py-4 flex items-center justify-between">
           <div className="flex items-center gap-4 md:gap-8">
-            <a href="/" className="text-xl font-semibold text-[#1B2A4A]">
+            <a href="/" className="text-xl font-semibold text-stone-800">
               判例AI
             </a>
             {/* Desktop nav */}
@@ -43,8 +42,8 @@ export default function ConditionalShell({
                   href={href}
                   className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                     isActive(href)
-                      ? "bg-[#1B2A4A] text-white"
-                      : "text-stone-600 hover:bg-[#E8EDF5] hover:text-[#1B2A4A]"
+                      ? "bg-emerald-600 text-white"
+                      : "text-stone-600 hover:bg-emerald-50 hover:text-emerald-700"
                   }`}
                 >
                   {t(key)}
@@ -101,8 +100,8 @@ export default function ConditionalShell({
                 onClick={() => setMobileOpen(false)}
                 className={`block px-3 py-2 text-sm rounded-lg ${
                   isActive(href)
-                    ? "bg-[#1B2A4A] text-white"
-                    : "text-stone-600 hover:bg-[#E8EDF5]"
+                    ? "bg-emerald-600 text-white"
+                    : "text-stone-600 hover:bg-emerald-50"
                 }`}
               >
                 {t(key)}

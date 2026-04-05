@@ -19,18 +19,18 @@ function CourtCard({
   recommended?: boolean;
 }) {
   return (
-    <div className="rounded-xl bg-white border border-[#1B2A4A]/15 p-6 shadow-sm">
+    <div className="rounded-xl bg-white border border-emerald-700/15 p-6 shadow-sm">
       <div className="flex items-start justify-between mb-4">
         <p className="font-semibold text-sm text-[#2D2D2D]">{name}</p>
         {recommended && (
-          <span className="text-xs bg-[#C5A55A]/10 text-[#C5A55A] px-2 py-0.5 rounded-full font-medium">
+          <span className="text-xs bg-white/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">
             推薦
           </span>
         )}
       </div>
-      <div className="h-2 rounded-full bg-[#E8EDF5] mb-2">
+      <div className="h-2 rounded-full bg-emerald-100 mb-2">
         <div
-          className="h-2 rounded-full bg-[#1B2A4A]"
+          className="h-2 rounded-full bg-emerald-700"
           style={{ width: rate }}
         />
       </div>
@@ -41,7 +41,7 @@ function CourtCard({
 
 export default function FeatureVenue() {
   return (
-    <section className="py-24 md:py-32 bg-[#E8EDF5]/30">
+    <section className="py-24 md:py-32 bg-emerald-100/30">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-12 md:gap-16 items-center">
           {/* Left: visual (order-last on mobile) */}
@@ -55,7 +55,7 @@ export default function FeatureVenue() {
           {/* Right: text */}
           <FadeIn direction="right" delay={0.15}>
             <div className="order-first md:order-none">
-              <span className="font-mono text-sm text-[#C5A55A]">02</span>
+              <span className="font-mono text-sm text-emerald-400">02</span>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#2D2D2D] mt-2">
                 最適な管轄を
                 <br />
@@ -69,7 +69,7 @@ export default function FeatureVenue() {
               <div className="mt-6 space-y-3">
                 {features.map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-3">
-                    <Icon size={20} className="text-[#1B2A4A] shrink-0" />
+                    <Icon size={20} className="text-stone-800 shrink-0" />
                     <span className="text-sm text-[#2D2D2D]/70">{text}</span>
                   </div>
                 ))}
@@ -77,7 +77,7 @@ export default function FeatureVenue() {
 
               <a
                 href="/venue"
-                className="inline-block mt-6 text-sm font-medium text-[#1B2A4A] hover:text-[#243656] transition-colors"
+                className="inline-block mt-6 text-sm font-medium text-stone-800 hover:text-emerald-800 transition-colors"
               >
                 管轄を分析する &rarr;
               </a>

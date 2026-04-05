@@ -1,6 +1,7 @@
+import uuid
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database import Base
@@ -71,3 +72,106 @@ class JudgePersona(Base):
     case_count_at_gen: Mapped[int] = mapped_column(Integer, default=0)
 
     judge: Mapped["Judge"] = relationship()
+
+
+class StrategySession(Base):
+    __tablename__ = "strategy_sessions"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    case_type: Mapped[str] = mapped_column(String, nullable=False)  # civil/criminal/administrative
+    party_position: Mapped[str] = mapped_column(String, nullable=False)  # plaintiff/defendant
+    overview: Mapped[str] = mapped_column(Text, nullable=False)
+    judge_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("judges.id"), nullable=True)
+    current_step: Mapped[int] = mapped_column(Integer, default=1)
+    step1_data: Mapped[str | None] = mapped_column(Text)  # JSON
+    step2_data: Mapped[str | None] = mapped_column(Text)  # JSON
+    step3_data: Mapped[str | None] = mapped_column(Text)  # JSON
+    step4_data: Mapped[str | None] = mapped_column(Text)  # JSON
+    step5_data: Mapped[str | None] = mapped_column(Text)  # JSON
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+    judge: Mapped["Judge | None"] = relationship()
+    issues: Mapped[list["StrategyIssue"]] = relationship(back_populates="session", cascade="all, delete-orphan")
+    items: Mapped[list["StrategyItem"]] = relationship(back_populates="session", cascade="all, delete-orphan")
+    briefs: Mapped[list["StrategyBrief"]] = relationship(back_populates="session", cascade="all, delete-orphan")
+    review_items: Mapped[list["StrategyReviewItem"]] = relationship(back_populates="session", cascade="all, delete-orphan")
+
+
+class StrategyIssue(Base):
+    __tablename__ = "strategy_issues"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    session_id: Mapped[str] = mapped_column(String, ForeignKey("strategy_sessions.id"), nullable=False)
+    rank: Mapped[int] = mapped_column(Integer, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    category: Mapped[str] = mapped_column(String, nullable=False)
+    score: Mapped[int] = mapped_column(Integer, default=0)
+    frequency: Mapped[int] = mapped_column(Integer, default=0)
+    win_rate: Mapped[float] = mapped_column(Float, default=0.0)
+    lose_rate: Mapped[float] = mapped_column(Float, default=0.0)
+    other_rate: Mapped[float] = mapped_column(Float, default=0.0)
+    selected: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    session: Mapped["StrategySession"] = relationship(back_populates="issues")
+
+
+class StrategyItem(Base):
+    __tablename__ = "strategy_items"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    session_id: Mapped[str] = mapped_column(String, ForeignKey("strategy_sessions.id"), nullable=False)
+    side: Mapped[str] = mapped_column(String, nullable=False)  # attack/defense
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="")
+    strength_pct: Mapped[int] = mapped_column(Integer, default=0)
+    score_pct: Mapped[int] = mapped_column(Integer, default=0)
+    precedent_count: Mapped[int] = mapped_column(Integer, default=0)
+    rank: Mapped[int] = mapped_column(Integer, default=0)
+
+    session: Mapped["StrategySession"] = relationship(back_populates="items")
+
+
+class StrategyBrief(Base):
+    __tablename__ = "strategy_briefs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    session_id: Mapped[str] = mapped_column(String, ForeignKey("strategy_sessions.id"), nullable=False)
+    status: Mapped[str] = mapped_column(String, default="pending")  # pending/generating/completed/error
+    document_type: Mapped[str] = mapped_column(String, default="準備書面")
+    full_content: Mapped[str | None] = mapped_column(Text)
+    court_name: Mapped[str | None] = mapped_column(String)
+    party_side: Mapped[str | None] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+    session: Mapped["StrategySession"] = relationship(back_populates="briefs")
+    sections: Mapped[list["StrategyBriefSection"]] = relationship(back_populates="brief", cascade="all, delete-orphan")
+
+
+class StrategyBriefSection(Base):
+    __tablename__ = "strategy_brief_sections"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    brief_id: Mapped[int] = mapped_column(Integer, ForeignKey("strategy_briefs.id"), nullable=False)
+    section_order: Mapped[int] = mapped_column(Integer, nullable=False)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    content: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="pending")
+
+    brief: Mapped["StrategyBrief"] = relationship(back_populates="sections")
+
+
+class StrategyReviewItem(Base):
+    __tablename__ = "strategy_review_items"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    session_id: Mapped[str] = mapped_column(String, ForeignKey("strategy_sessions.id"), nullable=False)
+    side: Mapped[str] = mapped_column(String, nullable=False)  # counterargument/response
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="")
+    strength: Mapped[str | None] = mapped_column(String)  # strong/medium/weak
+    effectiveness: Mapped[str | None] = mapped_column(String)  # high/medium/low
+    precedent_ref: Mapped[str | None] = mapped_column(String)
+    citation_rate: Mapped[str | None] = mapped_column(String)
+    pair_index: Mapped[int | None] = mapped_column(Integer)
+
+    session: Mapped["StrategySession"] = relationship(back_populates="review_items")

@@ -17,7 +17,7 @@ export default function FeatureJudge() {
           {/* Left: text */}
           <FadeIn direction="left">
             <div>
-              <span className="font-mono text-sm text-[#C5A55A]">01</span>
+              <span className="font-mono text-sm text-emerald-400">01</span>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#2D2D2D] mt-2">
                 裁判官の判決パターンを
                 <br />
@@ -31,7 +31,7 @@ export default function FeatureJudge() {
               <div className="mt-6 space-y-3">
                 {features.map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-3">
-                    <Icon size={20} className="text-[#1B2A4A] shrink-0" />
+                    <Icon size={20} className="text-stone-800 shrink-0" />
                     <span className="text-sm text-[#2D2D2D]/70">{text}</span>
                   </div>
                 ))}
@@ -39,7 +39,7 @@ export default function FeatureJudge() {
 
               <a
                 href="/dashboard"
-                className="inline-block mt-6 text-sm font-medium text-[#1B2A4A] hover:text-[#243656] transition-colors"
+                className="inline-block mt-6 text-sm font-medium text-stone-800 hover:text-emerald-800 transition-colors"
               >
                 裁判官を検索する &rarr;
               </a>
@@ -69,9 +69,9 @@ export default function FeatureJudge() {
                         {bar.width}
                       </span>
                     </div>
-                    <div className="h-2 rounded-full bg-[#E8EDF5]">
+                    <div className="h-2 rounded-full bg-emerald-100">
                       <div
-                        className="h-2 rounded-full bg-[#1B2A4A]"
+                        className="h-2 rounded-full bg-emerald-700"
                         style={{ width: bar.width }}
                       />
                     </div>

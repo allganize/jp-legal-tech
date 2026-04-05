@@ -11,8 +11,8 @@ const features = [
 
 function SearchPreview() {
   return (
-    <div className="rounded-xl bg-white border border-[#1B2A4A]/15 p-5 shadow-sm space-y-3">
-      <div className="rounded-lg bg-[#E8EDF5]/50 p-3">
+    <div className="rounded-xl bg-white border border-emerald-700/15 p-5 shadow-sm space-y-3">
+      <div className="rounded-lg bg-emerald-100/50 p-3">
         <p className="text-xs text-[#2D2D2D]/50 mb-1">事実関係</p>
         <p className="text-sm text-[#2D2D2D]/80 leading-relaxed">
           保育園が発達障害を持つ子供の入園を取り消し、保護者が損害賠償を請求...
@@ -52,7 +52,7 @@ export default function FeatureSearch() {
           {/* Left: text */}
           <FadeIn direction="left" delay={0.15}>
             <div>
-              <span className="font-mono text-sm text-[#C5A55A]">03</span>
+              <span className="font-mono text-sm text-emerald-400">03</span>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#2D2D2D] mt-2">
                 事実関係で
                 <br />
@@ -66,7 +66,7 @@ export default function FeatureSearch() {
               <div className="mt-6 space-y-3">
                 {features.map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-3">
-                    <Icon size={20} className="text-[#1B2A4A] shrink-0" />
+                    <Icon size={20} className="text-stone-800 shrink-0" />
                     <span className="text-sm text-[#2D2D2D]/70">{text}</span>
                   </div>
                 ))}
@@ -74,7 +74,7 @@ export default function FeatureSearch() {
 
               <a
                 href="/search"
-                className="inline-block mt-6 text-sm font-medium text-[#1B2A4A] hover:text-[#243656] transition-colors"
+                className="inline-block mt-6 text-sm font-medium text-stone-800 hover:text-emerald-800 transition-colors"
               >
                 類似判例を検索する &rarr;
               </a>

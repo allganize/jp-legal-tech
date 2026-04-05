@@ -16,6 +16,7 @@ const translations: Record<string, Record<Locale, string>> = {
   "nav.venue": { ja: "管轄最適化", ko: "관할 최적화", en: "Venue Optimization" },
   "nav.search": { ja: "類似判例検索", ko: "유사 판례 검색", en: "Case Search" },
   "nav.regulation": { ja: "規制追跡", ko: "규제 추적", en: "Regulation Tracking" },
+  "nav.strategy": { ja: "戦略シミュレーター", ko: "전략 시뮬레이터", en: "Strategy Simulator" },
 
   // Search page
   "search.title": { ja: "事実関係類似判例検索", ko: "사실관계 유사 판례 검색", en: "Fact-based Similar Case Search" },
