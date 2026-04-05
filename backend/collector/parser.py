@@ -34,8 +34,8 @@ def _extract_name(segment: str) -> str | None:
     # Reject segments containing hiragana, katakana, or digits — they're prose, not names
     if re.search(r"[\u3040-\u309F\u30A0-\u30FF0-9０-９]", segment):
         return None
-    # Extract only CJK kanji characters
-    kanji = re.sub(r"[^\u4E00-\u9FFF\u3400-\u4DBF]", "", segment)
+    # Extract CJK kanji characters + iteration mark 々 (U+3005)
+    kanji = re.sub(r"[^\u4E00-\u9FFF\u3400-\u4DBF\u3005]", "", segment)
     if 2 <= len(kanji) <= 5:
         return kanji
     return None

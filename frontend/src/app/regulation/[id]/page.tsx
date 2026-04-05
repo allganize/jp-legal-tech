@@ -10,12 +10,12 @@ import {
 } from "@/lib/api";
 
 const ACTION_COLORS: Record<string, string> = {
-  "긴급 대응": "bg-red-100 text-red-700 border-red-200",
-  "통지 필요": "bg-amber-100 text-amber-700 border-amber-200",
-  "검토 필요": "bg-blue-100 text-blue-700 border-blue-200",
+  "緊急対応": "bg-red-100 text-red-700 border-red-200",
+  "通知必要": "bg-amber-100 text-amber-700 border-amber-200",
+  "検討必要": "bg-blue-100 text-blue-700 border-blue-200",
 };
 
-const STAGE_ORDER = ["입법예고", "시행령공포", "시행", "폐지"];
+const STAGE_ORDER = ["立法予告", "施行令公布", "施行", "廃止"];
 
 export default function RegulationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -37,39 +37,39 @@ export default function RegulationDetailPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="text-center py-12 text-stone-400">불러오는 중...</div>;
+    return <div className="text-center py-12 text-stone-400">読み込み中...</div>;
   }
   if (!reg) {
-    return <div className="text-center py-12 text-stone-400">규제 항목을 찾을 수 없습니다.</div>;
+    return <div className="text-center py-12 text-stone-400">規制項目が見つかりません。</div>;
   }
 
   const currentStageIdx = STAGE_ORDER.indexOf(reg.lifecycle_stage);
 
   return (
     <div className="space-y-10">
-      {/* 뒤로가기 */}
+      {/* 戻る */}
       <button
         onClick={() => router.push("/regulation")}
         className="text-sm text-stone-500 hover:text-stone-700"
       >
-        &larr; 규제 피드로 돌아가기
+        &larr; 規制フィードに戻る
       </button>
 
-      {/* 규제 상세 카드 */}
+      {/* 規制詳細カード */}
       <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span
                 className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-                  reg.impact_level === "높음"
+                  reg.impact_level === "高"
                     ? "bg-red-50 text-red-700"
-                    : reg.impact_level === "중간"
+                    : reg.impact_level === "中"
                     ? "bg-amber-50 text-amber-700"
                     : "bg-green-50 text-green-700"
                 }`}
               >
-                영향도: {reg.impact_level}
+                影響度: {reg.impact_level}
               </span>
               <span className="px-2.5 py-1 text-xs bg-stone-100 text-stone-600 rounded-full">
                 {reg.category}
@@ -82,16 +82,16 @@ export default function RegulationDetailPage() {
           </div>
           <div className="text-right text-sm text-stone-500 shrink-0">
             <div>{reg.source}</div>
-            <div className="mt-1">공포일: {reg.published_date}</div>
+            <div className="mt-1">公布日: {reg.published_date}</div>
             {reg.effective_date && (
-              <div className="text-emerald-600 mt-1">시행일: {reg.effective_date}</div>
+              <div className="text-emerald-600 mt-1">施行日: {reg.effective_date}</div>
             )}
           </div>
         </div>
 
-        {/* 라이프사이클 타임라인 */}
+        {/* ライフサイクルタイムライン */}
         <div className="pt-4 border-t border-stone-100">
-          <div className="text-xs text-stone-500 mb-3 font-medium">규제 라이프사이클</div>
+          <div className="text-xs text-stone-500 mb-3 font-medium">規制ライフサイクル</div>
           <div className="flex items-center gap-0">
             {STAGE_ORDER.map((stage, idx) => (
               <div key={stage} className="flex items-center">
@@ -116,32 +116,32 @@ export default function RegulationDetailPage() {
           </div>
         </div>
 
-        {/* 요약 + 상세 */}
+        {/* 要約 + 詳細 */}
         <div className="pt-4 border-t border-stone-100 space-y-3">
           <div>
-            <div className="text-xs text-stone-500 font-medium mb-1">요약</div>
+            <div className="text-xs text-stone-500 font-medium mb-1">要約</div>
             <p className="text-sm text-stone-700">{reg.summary}</p>
           </div>
           {reg.detail_text && (
             <div>
-              <div className="text-xs text-stone-500 font-medium mb-1">상세 내용</div>
+              <div className="text-xs text-stone-500 font-medium mb-1">詳細内容</div>
               <p className="text-sm text-stone-600 whitespace-pre-line">{reg.detail_text}</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* 영향 클라이언트 */}
+      {/* 影響クライアント */}
       <div>
         <h3 className="text-lg font-semibold text-stone-900 mb-4">
-          영향 클라이언트
+          影響クライアント
           <span className="ml-2 text-sm font-normal text-stone-500">
-            {impacts.length}곳
+            {impacts.length}件
           </span>
         </h3>
 
         {impacts.length === 0 ? (
-          <p className="text-stone-400 text-sm">영향받는 클라이언트가 없습니다.</p>
+          <p className="text-stone-400 text-sm">影響を受けるクライアントがありません。</p>
         ) : (
           <div className="space-y-3">
             {impacts.map((item) => (
@@ -164,10 +164,10 @@ export default function RegulationDetailPage() {
                       </span>
                     </div>
                     <div className="text-sm text-stone-500 mb-3">
-                      {item.industry} · 담당: {item.assigned_lawyer}
+                      {item.industry} · 担当: {item.assigned_lawyer}
                     </div>
 
-                    {/* 영향 사유 */}
+                    {/* 影響理由 */}
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       {item.impact_reasons.map((reason, idx) => (
                         <span
@@ -179,22 +179,22 @@ export default function RegulationDetailPage() {
                       ))}
                     </div>
 
-                    {/* 라이선스 & 서비스 */}
+                    {/* ライセンス & サービス */}
                     <div className="text-xs text-stone-400 space-y-0.5">
                       {item.licenses.length > 0 && (
-                        <div>라이선스: {item.licenses.join(", ")}</div>
+                        <div>ライセンス: {item.licenses.join(", ")}</div>
                       )}
-                      <div>서비스: {item.services.join(", ")}</div>
+                      <div>サービス: {item.services.join(", ")}</div>
                     </div>
                   </div>
 
                   <div className="shrink-0 text-right space-y-3">
-                    {/* 영향도 점수 */}
+                    {/* 影響度スコア */}
                     <div>
                       <div className="text-2xl font-semibold font-mono text-stone-900">
                         {item.impact_score}
                       </div>
-                      <div className="text-xs text-stone-400">영향도 점수</div>
+                      <div className="text-xs text-stone-400">影響度スコア</div>
                       <div className="w-24 h-2 bg-stone-100 rounded-full mt-1">
                         <div
                           className={`h-full rounded-full ${
@@ -209,7 +209,7 @@ export default function RegulationDetailPage() {
                       </div>
                     </div>
 
-                    {/* 문서 생성 버튼 */}
+                    {/* 文書生成ボタン */}
                     <button
                       onClick={() =>
                         router.push(
@@ -218,7 +218,7 @@ export default function RegulationDetailPage() {
                       }
                       className="px-3 py-1.5 text-xs bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 active:scale-[0.98] transition-colors"
                     >
-                      문서 생성
+                      文書生成
                     </button>
                   </div>
                 </div>

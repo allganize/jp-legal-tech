@@ -67,17 +67,77 @@ export default function CaseDetailPage() {
   const caseId = String(params.id);
   const [caseData, setCaseData] = useState<CaseDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
+
+  const fetchCase = () => {
+    setLoading(true);
+    setError("");
+    setCaseData(null);
+    fetch(`${API_BASE}/cases/${caseId}`)
+      .then((r) => {
+        if (!r.ok) {
+          if (r.status === 404) throw new Error("判例が見つかりません");
+          if (r.status >= 500) throw new Error("サーバーエラーが発生しました");
+          throw new Error("データの取得に失敗しました");
+        }
+        return r.json();
+      })
+      .then(setCaseData)
+      .catch((e) => {
+        if (e instanceof TypeError) {
+          setError("ネットワークエラー");
+        } else {
+          setError(e.message || "データの取得に失敗しました");
+        }
+      })
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     if (!caseId) return;
-    fetch(`${API_BASE}/cases/${caseId}`)
-      .then((r) => r.json())
-      .then(setCaseData)
-      .catch(() => setCaseData(null))
-      .finally(() => setLoading(false));
+    fetchCase();
   }, [caseId]);
 
-  if (loading) return <div className="text-center py-20 text-stone-400">読み込み中...</div>;
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="bg-white rounded-2xl border border-stone-200 p-8 animate-pulse">
+          <div className="h-7 bg-stone-100 rounded w-2/3 mb-4" />
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-4 bg-stone-100 rounded w-3/4" />
+            ))}
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-stone-200 p-8 animate-pulse">
+          <div className="h-5 bg-stone-100 rounded w-1/4 mb-4" />
+          <div className="space-y-2">
+            <div className="h-4 bg-stone-100 rounded w-full" />
+            <div className="h-4 bg-stone-100 rounded w-5/6" />
+            <div className="h-4 bg-stone-100 rounded w-2/3" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    const isRetryable = error !== "判例が見つかりません";
+    return (
+      <div className="text-center py-20">
+        <p className="text-stone-500 mb-4">{error}</p>
+        {isRetryable && (
+          <button
+            onClick={fetchCase}
+            className="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+          >
+            再試行
+          </button>
+        )}
+      </div>
+    );
+  }
+
   if (!caseData) return <div className="text-center py-20 text-stone-400">判例が見つかりません</div>;
 
   return (
@@ -88,7 +148,7 @@ export default function CaseDetailPage() {
           {caseData.case_name || caseData.case_number}
         </h1>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
           <MetaItem label="事件番号" value={caseData.case_number} />
           <MetaItem label="判決日" value={caseData.decision_date} />
           <MetaItem label="裁判所" value={caseData.court_name} />
@@ -106,31 +166,39 @@ export default function CaseDetailPage() {
           )}
         </div>
 
-        {/* External links */}
-        {(caseData.detail_page_link || caseData.full_pdf_link) && (
-          <div className="mt-4 flex gap-3">
-            {caseData.detail_page_link && (
-              <a
-                href={caseData.detail_page_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 text-xs bg-stone-100 text-stone-600 rounded-lg hover:bg-stone-200 transition-colors"
-              >
-                裁判所サイト →
-              </a>
-            )}
-            {caseData.full_pdf_link && (
-              <a
-                href={caseData.full_pdf_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 text-xs bg-stone-100 text-stone-600 rounded-lg hover:bg-stone-200 transition-colors"
-              >
-                判決文PDF →
-              </a>
-            )}
-          </div>
-        )}
+        {/* External links + similar search */}
+        <div className="mt-4 flex flex-wrap gap-3">
+          {caseData.detail_page_link && (
+            <a
+              href={caseData.detail_page_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 text-xs bg-stone-100 text-stone-600 rounded-lg hover:bg-stone-200 transition-colors"
+            >
+              裁判所サイト →
+            </a>
+          )}
+          {caseData.full_pdf_link && (
+            <a
+              href={caseData.full_pdf_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 text-xs bg-stone-100 text-stone-600 rounded-lg hover:bg-stone-200 transition-colors"
+            >
+              判決文PDF →
+            </a>
+          )}
+          {(caseData.case_gist || caseData.gist) && (
+            <a
+              href={`/search?q=${encodeURIComponent(
+                (caseData.case_gist || caseData.gist || "").slice(0, 500)
+              )}`}
+              className="px-3 py-1.5 text-xs bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors"
+            >
+              類似判例を検索 →
+            </a>
+          )}
+        </div>
 
         {/* Judges */}
         {caseData.judges.length > 0 && (
@@ -156,6 +224,9 @@ export default function CaseDetailPage() {
       {caseData.case_gist && (
         <HighlightSection title="判決要旨" content={stripHtml(caseData.case_gist)} />
       )}
+
+      {/* 関連判例 */}
+      <RelatedCases caseId={caseData.id} />
 
       {/* Reference sections */}
       {caseData.ref_law && (
@@ -204,6 +275,59 @@ function Section({ title, content }: { title: string; content: string }) {
       <h2 className="text-lg font-semibold text-stone-900 mb-4">{title}</h2>
       <div className="text-[15px] leading-[1.9] text-stone-700 whitespace-pre-wrap">
         {content}
+      </div>
+    </div>
+  );
+}
+
+interface RelatedCase {
+  id: string;
+  case_number: string;
+  case_name: string | null;
+  court_name: string | null;
+  decision_date: string | null;
+  result: string | null;
+}
+
+function RelatedCases({ caseId }: { caseId: string }) {
+  const [related, setRelated] = useState<RelatedCase[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/cases/${caseId}/related?limit=5`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setRelated)
+      .catch(() => setRelated([]))
+      .finally(() => setLoading(false));
+  }, [caseId]);
+
+  if (loading || related.length === 0) return null;
+
+  return (
+    <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6 md:p-8">
+      <h2 className="text-lg font-semibold text-stone-900 mb-4">関連判例</h2>
+      <div className="space-y-3">
+        {related.map((r) => (
+          <a
+            key={r.id}
+            href={`/case/${r.id}`}
+            className="flex items-center justify-between rounded-xl border border-stone-100 p-3 hover:bg-stone-50 transition-colors"
+          >
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-stone-900 truncate">
+                {r.case_name || r.case_number}
+              </p>
+              <p className="text-xs text-stone-500">
+                {r.court_name} {r.decision_date && `| ${r.decision_date}`}
+              </p>
+            </div>
+            {r.result && (
+              <span className="ml-2 shrink-0 rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-600">
+                {r.result}
+              </span>
+            )}
+          </a>
+        ))}
       </div>
     </div>
   );

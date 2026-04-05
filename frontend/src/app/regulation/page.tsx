@@ -8,37 +8,37 @@ import {
   type RegulationFeedResponse,
 } from "@/lib/api";
 
-const CATEGORIES = ["전체", "AI규제", "데이터보호", "금융규제", "전자금융"];
+const CATEGORIES = ["すべて", "AI規制", "データ保護", "金融規制", "電子金融"];
 const IMPACT_COLORS: Record<string, string> = {
-  높음: "bg-red-50 text-red-700",
-  중간: "bg-amber-50 text-amber-700",
-  낮음: "bg-green-50 text-green-700",
+  高: "bg-red-50 text-red-700",
+  中: "bg-amber-50 text-amber-700",
+  低: "bg-green-50 text-green-700",
 };
 const TYPE_COLORS: Record<string, string> = {
-  입법예고: "bg-purple-50 text-purple-700",
-  가이드라인: "bg-blue-50 text-blue-700",
-  제재사례: "bg-orange-50 text-orange-700",
-  시행령: "bg-teal-50 text-teal-700",
+  立法予告: "bg-purple-50 text-purple-700",
+  ガイドライン: "bg-blue-50 text-blue-700",
+  制裁事例: "bg-orange-50 text-orange-700",
+  施行令: "bg-teal-50 text-teal-700",
 };
 
 export default function RegulationFeedPage() {
-  const [category, setCategory] = useState("전체");
+  const [category, setCategory] = useState("すべて");
   const [data, setData] = useState<RegulationFeedResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
-    const cat = category === "전체" ? undefined : category;
+    const cat = category === "すべて" ? undefined : category;
     getRegulationFeed(cat)
-      .then((d) => { console.log("feed data:", d); setData(d); })
-      .catch((e) => { console.error("feed error:", e); setData(null); })
+      .then((d) => { setData(d); })
+      .catch(() => { setData(null); })
       .finally(() => setLoading(false));
   }, [category]);
 
   return (
     <div className="space-y-6">
-      {/* 카테고리 탭 */}
+      {/* カテゴリタブ */}
       <div className="flex gap-2 flex-wrap">
         {CATEGORIES.map((cat) => (
           <button
@@ -51,20 +51,20 @@ export default function RegulationFeedPage() {
             }`}
           >
             {cat}
-            {data && cat !== "전체" && (
+            {data && cat !== "すべて" && (
               <span className="ml-1.5 text-xs opacity-70">
-                {data.items.filter((r) => cat === "전체" || r.category === cat).length}
+                {data.items.filter((r) => cat === "すべて" || r.category === cat).length}
               </span>
             )}
           </button>
         ))}
       </div>
 
-      {/* 규제 카드 리스트 */}
+      {/* 規制カードリスト */}
       {loading ? (
-        <div className="text-center py-12 text-stone-400">불러오는 중...</div>
+        <div className="text-center py-12 text-stone-400">読み込み中...</div>
       ) : !data || data.items.length === 0 ? (
-        <div className="text-center py-12 text-stone-400">규제 항목이 없습니다</div>
+        <div className="text-center py-12 text-stone-400">規制項目がありません</div>
       ) : (
         <div className="space-y-3">
           {data.items.map((reg) => (
@@ -108,7 +108,7 @@ export default function RegulationFeedPage() {
                   </div>
                   {reg.effective_date && (
                     <div className="text-xs text-emerald-500 mt-1">
-                      시행 {reg.effective_date}
+                      施行 {reg.effective_date}
                     </div>
                   )}
                 </div>

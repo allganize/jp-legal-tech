@@ -1,0 +1,15 @@
+.git
+.venv
+__pycache__
+*.pyc
+node_modules
+frontend
+.env
+.env.local
+data/*.db
+data/*.gz
+scripts/.upload_progress.json
+.context
+.claude
+*.md
+!pyproject.toml

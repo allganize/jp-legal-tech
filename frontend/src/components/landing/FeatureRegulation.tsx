@@ -38,7 +38,7 @@ export default function FeatureRegulation() {
           {/* Left main card */}
           <FadeIn delay={0}>
             <div className="md:row-span-2 rounded-2xl bg-white border border-stone-200 p-8 md:p-10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] h-full">
-              <span className="font-mono text-sm text-emerald-600">03</span>
+              <span className="font-mono text-sm text-emerald-600">04</span>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-stone-900 mt-2">
                 規制変化を自動で
                 <br />

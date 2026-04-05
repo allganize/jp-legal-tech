@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-opus-4-20250514"
 
+    # Google Gemini / File Search
+    google_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
+    file_search_store_id: str = ""
+
     # Server
     host: str = "0.0.0.0"
     port: int = 8000

@@ -1,4 +1,4 @@
-"""규제 에이전트 API 라우터."""
+"""規制エージェントAPIルーター。"""
 
 import json
 
@@ -44,7 +44,7 @@ def list_regulations(
 def regulation_detail(regulation_id: int, db: Session = Depends(get_db)):
     result = get_regulation_detail(db, regulation_id)
     if not result:
-        raise HTTPException(status_code=404, detail="규제 항목을 찾을 수 없습니다.")
+        raise HTTPException(status_code=404, detail="規制項目が見つかりません。")
     return result
 
 
@@ -60,7 +60,7 @@ def list_clients(db: Session = Depends(get_db)):
 
 @router.post("/generate")
 async def generate_document(body: GenerateDocRequest, db: Session = Depends(get_db)):
-    """규제 관련 문서를 생성한다 (SSE 스트리밍)."""
+    """規制関連文書を生成する（SSEストリーミング）。"""
     try:
         async def event_stream():
             try:
@@ -94,5 +94,5 @@ def weekly_briefing(db: Session = Depends(get_db)):
 def seed_data(db: Session = Depends(get_db)):
     result = seed_regulation_data(db)
     if result:
-        return {"message": "Mock 데이터 시딩 완료"}
-    return {"message": "이미 데이터가 존재합니다"}
+        return {"message": "Mockデータのシード完了"}
+    return {"message": "既にデータが存在します"}

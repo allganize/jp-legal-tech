@@ -58,26 +58,41 @@ function VenueCompareContent() {
 
   const [courts, setCourts] = useState<CourtStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string>("");
 
   // AI recommendation
   const [aiText, setAiText] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiDone, setAiDone] = useState(false);
+  const [aiError, setAiError] = useState<string>("");
   const [caseDescription, setCaseDescription] = useState("");
   const [showDescInput, setShowDescInput] = useState(false);
 
-  useEffect(() => {
+  const fetchComparison = () => {
     if (courtNames.length < 2) return;
     setLoading(true);
+    setFetchError("");
     compareVenueCourts(courtNames, caseType || undefined)
       .then((data) => setCourts(data.courts))
+      .catch((e) => {
+        setFetchError(
+          e instanceof TypeError
+            ? "ネットワークエラーが発生しました"
+            : "比較データの取得に失敗しました"
+        );
+      })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchComparison();
   }, [searchParams]);
 
   const requestAI = () => {
     setAiText("");
     setAiLoading(true);
     setAiDone(false);
+    setAiError("");
     getVenueRecommendation(
       caseType,
       courtNames,
@@ -88,7 +103,7 @@ function VenueCompareContent() {
         setAiDone(true);
       },
       (err) => {
-        setAiText(`エラー: ${err}`);
+        setAiError(err || "AI推薦の取得に失敗しました");
         setAiLoading(false);
       }
     );
@@ -108,6 +123,20 @@ function VenueCompareContent() {
 
   if (loading) {
     return <div className="text-center py-20 text-stone-400">統計読み込み中...</div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-stone-500 mb-4">{fetchError}</p>
+        <button
+          onClick={fetchComparison}
+          className="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+        >
+          再試行
+        </button>
+      </div>
+    );
   }
 
   // Build comparison bar chart data for parsed outcomes (未分類除外、ラベル変換)
@@ -437,7 +466,18 @@ function VenueCompareContent() {
         </button>
 
         {/* AI Output */}
-        {(aiText || aiLoading) && (
+        {aiError && (
+          <div className="mt-6 p-6 bg-red-50 rounded-lg border border-red-200 text-center">
+            <p className="text-red-600 mb-3">{aiError}</p>
+            <button
+              onClick={requestAI}
+              className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              再試行
+            </button>
+          </div>
+        )}
+        {!aiError && (aiText || aiLoading) && (
           <div className="mt-6 p-6 bg-stone-50 rounded-lg border border-stone-200">
             <div className="prose prose-stone prose-sm max-w-none">
               <ReactMarkdown>{aiText}</ReactMarkdown>

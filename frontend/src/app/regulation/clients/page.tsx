@@ -15,10 +15,10 @@ export default function ClientsPage() {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-12 text-stone-400">불러오는 중...</div>;
+    return <div className="text-center py-12 text-stone-400">読み込み中...</div>;
   }
 
-  // 담당 변호사별 그룹핑
+  // 担当弁護士別グループ
   const byLawyer: Record<string, ClientInfo[]> = {};
   for (const c of clients) {
     if (!byLawyer[c.assigned_lawyer]) byLawyer[c.assigned_lawyer] = [];
@@ -28,18 +28,18 @@ export default function ClientsPage() {
   return (
     <div className="space-y-10">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-        <StatCard label="전체 클라이언트" value={clients.length} />
+        <StatCard label="全クライアント" value={clients.length} />
         <StatCard
-          label="긴급 대응 필요"
+          label="緊急対応必要"
           value={clients.filter((c) => (c.urgent_count || 0) > 0).length}
           color="red"
         />
         <StatCard
-          label="담당 변호사"
+          label="担当弁護士"
           value={Object.keys(byLawyer).length}
         />
         <StatCard
-          label="총 영향 건수"
+          label="総影響件数"
           value={clients.reduce((sum, c) => sum + (c.impact_count || 0), 0)}
         />
       </div>
@@ -47,8 +47,8 @@ export default function ClientsPage() {
       {Object.entries(byLawyer).map(([lawyer, lawyerClients]) => (
         <div key={lawyer}>
           <h3 className="text-sm font-semibold text-stone-500 mb-3">
-            담당: {lawyer}
-            <span className="ml-1 font-normal">({lawyerClients.length}곳)</span>
+            担当: {lawyer}
+            <span className="ml-1 font-normal">({lawyerClients.length}件)</span>
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">
             {lawyerClients.map((client) => (
@@ -66,18 +66,18 @@ export default function ClientsPage() {
                   <div className="text-right">
                     {(client.urgent_count || 0) > 0 && (
                       <span className="px-2 py-1 text-xs bg-red-50 text-red-700 rounded-full">
-                        긴급 {client.urgent_count}건
+                        緊急 {client.urgent_count}件
                       </span>
                     )}
                     <div className="text-xs text-stone-400 mt-1">
-                      영향 <span className="font-mono">{client.impact_count || 0}</span>건
+                      影響 <span className="font-mono">{client.impact_count || 0}</span>件
                     </div>
                   </div>
                 </div>
 
                 {client.licenses.length > 0 && (
                   <div className="mb-2">
-                    <div className="text-xs text-stone-400 mb-1">라이선스</div>
+                    <div className="text-xs text-stone-400 mb-1">ライセンス</div>
                     <div className="flex flex-wrap gap-1">
                       {client.licenses.map((lic) => (
                         <span
@@ -92,7 +92,7 @@ export default function ClientsPage() {
                 )}
 
                 <div>
-                  <div className="text-xs text-stone-400 mb-1">서비스</div>
+                  <div className="text-xs text-stone-400 mb-1">サービス</div>
                   <div className="flex flex-wrap gap-1">
                     {client.services.map((svc) => (
                       <span

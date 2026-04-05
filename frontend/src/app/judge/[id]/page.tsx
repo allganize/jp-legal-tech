@@ -41,13 +41,15 @@ export default function JudgeProfilePage() {
   const [personaLoading, setPersonaLoading] = useState(false);
   const [personaError, setPersonaError] = useState<string>("");
 
+  const isValidId = !isNaN(judgeId) && judgeId > 0;
+
   useEffect(() => {
-    if (!judgeId) return;
+    if (!isValidId) return;
     setLoading(true);
     getJudgeProfile(judgeId)
       .then(setProfile)
       .finally(() => setLoading(false));
-  }, [judgeId]);
+  }, [judgeId, isValidId]);
 
   const loadPersona = (regenerate = false) => {
     setPersonaLoading(true);
@@ -59,17 +61,52 @@ export default function JudgeProfilePage() {
   };
 
   useEffect(() => {
-    if (!judgeId) return;
+    if (!isValidId) return;
     loadPersona();
-  }, [judgeId]);
+  }, [judgeId, isValidId]);
 
   useEffect(() => {
-    if (!judgeId) return;
+    if (!isValidId) return;
     getJudgeCases(judgeId, page, 20, caseTypeFilter || undefined).then(setCaseData);
-  }, [judgeId, page, caseTypeFilter]);
+  }, [judgeId, isValidId, page, caseTypeFilter]);
+
+  if (!isValidId) {
+    return <div className="text-center py-20 text-stone-500">無効な裁判官IDです</div>;
+  }
 
   if (loading) {
-    return <div className="text-center py-20 text-stone-400">読み込み中...</div>;
+    return (
+      <div className="space-y-10">
+        <div className="bg-white rounded-2xl border border-stone-200 p-8 animate-pulse">
+          <div className="flex items-start justify-between">
+            <div className="space-y-3 flex-1">
+              <div className="h-8 bg-stone-100 rounded w-1/3" />
+              <div className="h-4 bg-stone-100 rounded w-1/4" />
+            </div>
+            <div className="text-right space-y-2">
+              <div className="h-10 bg-stone-100 rounded w-16 ml-auto" />
+              <div className="h-3 bg-stone-100 rounded w-12 ml-auto" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-stone-50 rounded-lg p-3">
+                <div className="h-3 bg-stone-100 rounded w-1/2 mb-2" />
+                <div className="h-6 bg-stone-100 rounded w-3/4" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl border border-stone-200 p-6 animate-pulse">
+              <div className="h-5 bg-stone-100 rounded w-1/3 mb-4" />
+              <div className="h-[300px] bg-stone-50 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (!profile) {

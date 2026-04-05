@@ -10,9 +10,9 @@ import {
 } from "@/lib/api";
 
 const DOC_TYPES = [
-  { key: "research_memo", label: "리서치 메모" },
-  { key: "advisory_letter", label: "클라이언트 안내 레터" },
-  { key: "newsletter", label: "뉴스레터 초안" },
+  { key: "research_memo", label: "リサーチメモ" },
+  { key: "advisory_letter", label: "クライアント案内レター" },
+  { key: "newsletter", label: "ニュースレター草案" },
 ];
 
 export default function GenerateDocPage() {
@@ -67,12 +67,12 @@ export default function GenerateDocPage() {
         onClick={() => router.push(`/regulation/${id}`)}
         className="text-sm text-stone-500 hover:text-stone-700"
       >
-        &larr; 규제 상세로 돌아가기
+        &larr; 規制詳細に戻る
       </button>
 
       {reg && (
         <div className="bg-stone-50 rounded-xl p-4 border border-stone-200">
-          <div className="text-xs text-stone-400 mb-1">문서 생성 대상</div>
+          <div className="text-xs text-stone-400 mb-1">文書生成対象</div>
           <div className="font-semibold text-stone-900">{reg.title}</div>
           <div className="text-sm text-stone-500 mt-1">
             {reg.source} · {reg.category} · {reg.impact_level}
@@ -80,7 +80,7 @@ export default function GenerateDocPage() {
         </div>
       )}
 
-      {/* 문서 유형 탭 */}
+      {/* 文書タイプタブ */}
       <div className="flex gap-1 bg-stone-100 rounded-lg p-1">
         {DOC_TYPES.map((dt) => (
           <button
@@ -104,33 +104,33 @@ export default function GenerateDocPage() {
         ))}
       </div>
 
-      {/* 생성 버튼 */}
+      {/* 生成ボタン */}
       <div className="flex gap-2">
         <button
           onClick={() => handleGenerate(false)}
           disabled={generating}
           className="px-6 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 transition-colors"
         >
-          {generating ? "생성 중..." : "문서 생성"}
+          {generating ? "生成中..." : "文書生成"}
         </button>
         {done && (
           <button
             onClick={() => handleGenerate(true)}
             className="px-4 py-2.5 bg-stone-100 text-stone-600 text-sm rounded-lg hover:bg-stone-200 transition-colors"
           >
-            재생성
+            再生成
           </button>
         )}
       </div>
 
-      {/* 에러 */}
+      {/* エラー */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      {/* 출력 영역 */}
+      {/* 出力エリア */}
       {(output || generating) && (
         <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)]">
           <div className="flex items-center justify-between px-4 py-2.5 bg-stone-50 border-b border-stone-200">
@@ -140,11 +140,11 @@ export default function GenerateDocPage() {
               </span>
               {generating && (
                 <span className="text-xs text-emerald-500 animate-pulse">
-                  AI 생성 중...
+                  AI生成中...
                 </span>
               )}
               {done && (
-                <span className="text-xs text-green-600">생성 완료</span>
+                <span className="text-xs text-green-600">生成完了</span>
               )}
             </div>
             {done && (
@@ -153,13 +153,13 @@ export default function GenerateDocPage() {
                   onClick={() => setEditing(!editing)}
                   className="px-2.5 py-1 text-xs bg-stone-200 text-stone-600 rounded hover:bg-stone-300 transition-colors"
                 >
-                  {editing ? "미리보기" : "편집"}
+                  {editing ? "プレビュー" : "編集"}
                 </button>
                 <button
                   onClick={handleCopy}
                   className="px-2.5 py-1 text-xs bg-stone-200 text-stone-600 rounded hover:bg-stone-300 transition-colors"
                 >
-                  복사
+                  コピー
                 </button>
               </div>
             )}

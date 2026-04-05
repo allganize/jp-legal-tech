@@ -405,6 +405,122 @@ export async function getVenueRecommendation(
   await consumeSSE(res, onChunk, onDone, onError);
 }
 
+// ── 類似判例検索型 ──────────────────────────────────────
+
+export interface SearchFilters {
+  court_name?: string;
+  trial_type?: string;
+  year_from?: number;
+  year_to?: number;
+}
+
+export interface CitedChunk {
+  case_id: string;
+  case_number: string;
+  case_name: string | null;
+  court_name: string | null;
+  decision_date: string | null;
+  result: string | null;
+  chunk_text: string;
+}
+
+export interface SimilarCaseResult {
+  query: string;
+  total_found: number;
+  cases: CitedChunk[];
+  analysis: string | null;
+}
+
+export interface TimelineEvent {
+  case_id: string;
+  case_number: string;
+  date: string;
+  court_name: string | null;
+  result: string | null;
+  fact_summary: string;
+  relevance: string;
+}
+
+export interface SearchFilterOptions {
+  courts: string[];
+  trial_types: string[];
+  year_range: { min: number; max: number };
+}
+
+export interface StoreStatus {
+  store_id: string;
+  display_name: string;
+  active_documents: number;
+  pending_documents: number;
+  failed_documents: number;
+  size_bytes: number;
+  status: string;
+}
+
+// ── 類似判例検索 API ──────────────────────────────────────
+
+export function getSearchFilters(): Promise<SearchFilterOptions> {
+  return fetchApi("/search/filters");
+}
+
+export function getStoreStatus(): Promise<StoreStatus> {
+  return fetchApi("/search/store-status");
+}
+
+export async function searchSimilarCases(
+  query: string,
+  filters?: SearchFilters,
+  topK = 10
+): Promise<SimilarCaseResult> {
+  const res = await fetch(`${API_BASE}/search/similar`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...DEFAULT_HEADERS },
+    body: JSON.stringify({ query, filters: filters || null, top_k: topK }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "サーバーエラー" }));
+    throw new Error(err.detail || `API error: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function searchAndAnalyze(
+  query: string,
+  filters: SearchFilters | null,
+  topK: number,
+  onChunk: (text: string) => void,
+  onDone: () => void,
+  onError: (error: string) => void
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/search/analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...DEFAULT_HEADERS },
+    body: JSON.stringify({ query, filters, top_k: topK }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "サーバーエラー" }));
+    onError(err.detail || `API error: ${res.status}`);
+    return;
+  }
+  await consumeSSE(res, onChunk, onDone, onError);
+}
+
+export async function generateTimeline(
+  caseIds: string[],
+  query = ""
+): Promise<TimelineEvent[]> {
+  const res = await fetch(`${API_BASE}/search/timeline`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...DEFAULT_HEADERS },
+    body: JSON.stringify({ case_ids: caseIds, query }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "サーバーエラー" }));
+    throw new Error(err.detail || `API error: ${res.status}`);
+  }
+  return res.json();
+}
+
 // ── 裁判官分析 API ──────────────────────────────────────────
 
 export function searchJudges(query: string): Promise<JudgeSearchResult[]> {

@@ -116,8 +116,11 @@ export default function Dashboard() {
         </div>
       )}
 
-      {query && !loading && results.length === 0 && (
-        <p className="text-center text-stone-400">検索結果がありません</p>
+      {query.trim() && !loading && results.length === 0 && (
+        <div className="max-w-xl mx-auto text-center py-8">
+          <p className="text-stone-500">該当する裁判官が見つかりませんでした</p>
+          <p className="text-sm text-stone-400 mt-2">別のキーワードで検索してみてください</p>
+        </div>
       )}
 
       {status && (
