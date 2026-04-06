@@ -18,7 +18,7 @@ from backend.config import settings
 from backend.database import init_db
 
 # OIDC가 설정되지 않으면 인증 비활성 (로컬 개발 편의)
-_AUTH_ENABLED = bool(settings.oidc_client_id)
+_AUTH_ENABLED = bool(settings.oidc_issuer_url and settings.oidc_client_id)
 _PUBLIC_PREFIXES = ("/api/health", "/api/auth/")
 
 
@@ -100,13 +100,21 @@ if _FRONTEND_DIR.exists():
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
         """SPA fallback: serve static HTML or index.html for client-side routing."""
-        # Try exact file (e.g. /dashboard/index.html)
-        file_path = _FRONTEND_DIR / full_path
-        if file_path.is_file():
-            return FileResponse(file_path)
+        # API paths should never fall through to SPA
+        if full_path.startswith("api/"):
+            return JSONResponse({"error": "not found"}, status_code=404)
 
-        # Try directory with index.html (e.g. /dashboard/ → /dashboard/index.html)
-        index_path = file_path / "index.html"
+        # Path traversal protection
+        resolved = (_FRONTEND_DIR / full_path).resolve()
+        if not str(resolved).startswith(str(_FRONTEND_DIR.resolve())):
+            return JSONResponse({"error": "forbidden"}, status_code=403)
+
+        # Try exact file
+        if resolved.is_file():
+            return FileResponse(resolved)
+
+        # Try directory with index.html
+        index_path = resolved / "index.html"
         if index_path.is_file():
             return FileResponse(index_path)
 
