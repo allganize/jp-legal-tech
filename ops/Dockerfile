@@ -27,7 +27,7 @@ COPY backend/ ./backend/
 COPY scripts/ ./scripts/
 
 # Next.js standalone build
-COPY --from=frontend-build /app/frontend/.next/standalone/frontend ./frontend-standalone/
+COPY --from=frontend-build /app/frontend/.next/standalone/jp-legal-tech/frontend ./frontend-standalone/
 COPY --from=frontend-build /app/frontend/.next/static ./frontend-standalone/.next/static/
 COPY --from=frontend-build /app/frontend/public ./frontend-standalone/public/
 
