@@ -23,7 +23,6 @@ jobs:
   # Prepare image tag
   # ---------------------------------------------------------------------------
   prepare:
-    needs: ci
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.tag.outputs.image_tag }}
