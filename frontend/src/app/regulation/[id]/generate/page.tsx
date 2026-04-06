@@ -1,7 +1,7 @@
 import GenerateDocClient from "./_client";
 
 export function generateStaticParams() {
-  return [];
+  return [{ id: "_" }];
 }
 
 export default function GenerateDocPage() {

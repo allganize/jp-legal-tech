@@ -1,7 +1,7 @@
 import JudgeDetailClient from "./_client";
 
 export function generateStaticParams() {
-  return [];
+  return [{ id: "_" }];
 }
 
 export default function JudgeDetailPage() {

@@ -1,7 +1,7 @@
 import RegulationDetailClient from "./_client";
 
 export function generateStaticParams() {
-  return [];
+  return [{ id: "_" }];
 }
 
 export default function RegulationDetailPage() {
