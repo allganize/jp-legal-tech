@@ -1,12 +1,6 @@
 name: [Legal Tech] Deploy staging
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Image tag to deploy (e.g., di-20260319085934)"
-        required: true
-        type: string
   push:
     branches:
       - main
