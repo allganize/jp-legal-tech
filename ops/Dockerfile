@@ -8,32 +8,29 @@ COPY frontend/ ./
 ENV NEXT_PUBLIC_API_URL="/api"
 RUN npm run build
 
-# Stage 2: Python backend
-FROM python:3.12-slim
+# Stage 2: Python backend (alpine + uv)
+FROM python:3.12-alpine AS base
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/* && \
-    pip install --no-cache-dir uv
+# Install curl for DB download + healthcheck
+RUN apk add --no-cache curl bash
 
-# Python dependencies
+# Dependencies first (layer caching)
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
 
-# Copy backend
+# Backend code
 COPY backend/ ./backend/
 COPY scripts/ ./scripts/
 
-# Copy frontend static export
+# Frontend static export
 COPY --from=frontend-build /app/frontend/out ./frontend/out/
 
 # Data directory for SQLite DB
 RUN mkdir -p /app/data
-
-ENV PYTHONPATH=/app
-ENV PORT=8000
 
 EXPOSE 8000
 
