@@ -8,7 +8,8 @@ COPY frontend/ ./frontend/
 ENV NEXT_PUBLIC_API_URL=""
 RUN cd frontend && npm run build && \
     echo "=== standalone structure ===" && \
-    find frontend/.next/standalone -name "server.js" -type f
+    find /app -name "server.js" -path "*standalone*" -type f && \
+    ls -la /app/frontend/.next/standalone/
 
 # Stage 2: Python backend (alpine + uv)
 FROM python:3.12-alpine AS base
@@ -30,8 +31,8 @@ COPY scripts/ ./scripts/
 
 # Next.js standalone build — copy entire standalone dir, then static + public
 COPY --from=frontend-build /app/frontend/.next/standalone/ ./frontend-standalone/
-COPY --from=frontend-build /app/frontend/.next/static ./frontend-standalone/frontend/.next/static/
-COPY --from=frontend-build /app/frontend/public ./frontend-standalone/frontend/public/
+COPY --from=frontend-build /app/frontend/.next/static ./frontend-standalone/.next/static/
+COPY --from=frontend-build /app/frontend/public ./frontend-standalone/public/
 
 # Data directory for SQLite DB
 RUN mkdir -p /app/data
