@@ -29,7 +29,13 @@ for i in $(seq 1 30); do
     sleep 1
 done
 
-# Start Next.js frontend (exposed, port 8000)
-echo "[entrypoint] Starting Next.js on port 8000..."
-cd /app/frontend-standalone
-exec node server.js
+# Find and start Next.js standalone server
+SERVER_JS=$(find /app/frontend-standalone -name "server.js" -type f | head -1)
+if [ -z "$SERVER_JS" ]; then
+    echo "[entrypoint] ERROR: server.js not found in frontend-standalone"
+    exit 1
+fi
+SERVER_DIR=$(dirname "$SERVER_JS")
+echo "[entrypoint] Starting Next.js from $SERVER_DIR on port 8000..."
+cd "$SERVER_DIR"
+PORT=8000 exec node server.js
