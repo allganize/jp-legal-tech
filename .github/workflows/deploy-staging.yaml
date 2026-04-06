@@ -1,4 +1,4 @@
-name: [Legal Tech] Deploy staging
+name: "[Legal Tech] Deploy staging"
 
 on:
   push:
