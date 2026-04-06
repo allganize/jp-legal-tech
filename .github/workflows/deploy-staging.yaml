@@ -1,4 +1,4 @@
-name: "[Legal Tech] Deploy staging"
+name: "[jp-legal-tech] Deploy staging"
 
 on:
   push:
@@ -9,35 +9,24 @@ permissions:
   contents: read
 
 concurrency:
-  group: staging-legal-tech-deploy
+  group: staging-jp-legal-tech-deploy
   cancel-in-progress: true
 
 jobs:
-  # ---------------------------------------------------------------------------
-  # Prepare image tag
-  # ---------------------------------------------------------------------------
   prepare:
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.tag.outputs.image_tag }}
-      repo_name: ${{ steps.repo.outputs.repo_name }}
     steps:
       - name: Generate image tag
         id: tag
-        run: echo "image_tag=latest" >> $GITHUB_OUTPUT
+        run: echo "image_tag=$(date -u +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Set repo name env
-        id: repo
-        run: echo "repo_name=${GITHUB_REPOSITORY#*/}" >> $GITHUB_OUTPUT
-
-  # ---------------------------------------------------------------------------
-  # Build voice-agent (multi-arch, DockerHub)
-  # ---------------------------------------------------------------------------
   build:
     needs: prepare
     uses: ./.github/workflows/_docker-build.yaml
     with:
-      service_name: ${{ needs.prepare.outputs.repo_name }}
+      service_name: jp-legal-tech
       dockerfile: ops/Dockerfile
       context: "."
       image_tag: ${{ needs.prepare.outputs.image_tag }}
@@ -47,9 +36,6 @@ jobs:
       SLACK_WEBHOOK_URL_FOR_DEPLOYMENT_NOTICE: ${{ secrets.SLACK_WEBHOOK_URL_FOR_DEPLOYMENT_NOTICE }}
       SLACK_WEBHOOK_URL_FOR_STAGING: ${{ secrets.SLACK_WEBHOOK_URL_FOR_STAGING }}
 
-  # ---------------------------------------------------------------------------
-  # Trigger K8s image update for staging
-  # ---------------------------------------------------------------------------
   trigger-k8s-update:
     needs: [prepare, build]
     if: needs.build.result == 'success'
@@ -65,5 +51,5 @@ jobs:
             --repo allganize/saas-helm-charts \
             --ref main \
             -f environment=staging-us \
-            -f service=${{ needs.prepare.outputs.repo_name }} \
+            -f service=jp-legal-tech \
             -f tag="$TAG"
