@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -86,3 +88,31 @@ app.include_router(strategy.router, prefix="/api/strategy", tags=["strategy"])
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
+
+
+# --- Static frontend (Next.js export) ---
+_FRONTEND_DIR = Path(__file__).parent.parent / "frontend" / "out"
+
+if _FRONTEND_DIR.exists():
+    # Next.js static assets (_next/, images, etc.)
+    app.mount("/_next", StaticFiles(directory=str(_FRONTEND_DIR / "_next")), name="next-assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        """SPA fallback: serve static HTML or index.html for client-side routing."""
+        # Try exact file (e.g. /dashboard/index.html)
+        file_path = _FRONTEND_DIR / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+
+        # Try directory with index.html (e.g. /dashboard/ → /dashboard/index.html)
+        index_path = file_path / "index.html"
+        if index_path.is_file():
+            return FileResponse(index_path)
+
+        # SPA fallback: serve root index.html for client-side routing
+        root_index = _FRONTEND_DIR / "index.html"
+        if root_index.is_file():
+            return FileResponse(root_index)
+
+        return JSONResponse({"error": "not found"}, status_code=404)
