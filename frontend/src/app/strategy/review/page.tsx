@@ -9,15 +9,23 @@ import {
 } from "@/lib/api";
 
 const STRENGTH_COLORS: Record<string, string> = {
-  "強": "bg-red-100 text-red-700 border-red-200",
-  "中": "bg-amber-100 text-amber-700 border-amber-200",
-  "弱": "bg-stone-100 text-stone-600 border-stone-200",
+  strong: "bg-red-100 text-red-700 border-red-200",
+  medium: "bg-amber-100 text-amber-700 border-amber-200",
+  weak: "bg-stone-100 text-stone-600 border-stone-200",
+};
+
+const STRENGTH_LABELS: Record<string, string> = {
+  strong: "強", medium: "中", weak: "弱",
 };
 
 const EFFECTIVENESS_COLORS: Record<string, string> = {
-  "高": "bg-emerald-100 text-emerald-700 border-emerald-200",
-  "中": "bg-emerald-100 text-emerald-600 border-emerald-200",
-  "低": "bg-stone-100 text-stone-600 border-stone-200",
+  high: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  medium: "bg-emerald-100 text-emerald-600 border-emerald-200",
+  low: "bg-stone-100 text-stone-600 border-stone-200",
+};
+
+const EFFECTIVENESS_LABELS: Record<string, string> = {
+  high: "高", medium: "中", low: "低",
 };
 
 function ReviewContent() {
@@ -214,10 +222,10 @@ function ReviewContent() {
                           <span
                             className={`px-2 py-0.5 rounded-full text-xs font-medium border shrink-0 ${
                               STRENGTH_COLORS[item.strength] ||
-                              STRENGTH_COLORS["中"]
+                              STRENGTH_COLORS["medium"]
                             }`}
                           >
-                            {item.strength}
+                            {STRENGTH_LABELS[item.strength] || item.strength}
                           </span>
                         )}
                       </div>
@@ -279,10 +287,10 @@ function ReviewContent() {
                           <span
                             className={`px-2 py-0.5 rounded-full text-xs font-medium border shrink-0 ${
                               EFFECTIVENESS_COLORS[item.effectiveness] ||
-                              EFFECTIVENESS_COLORS["中"]
+                              EFFECTIVENESS_COLORS["medium"]
                             }`}
                           >
-                            {item.effectiveness}
+                            {EFFECTIVENESS_LABELS[item.effectiveness] || item.effectiveness}
                           </span>
                         )}
                       </div>

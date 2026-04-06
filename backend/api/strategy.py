@@ -261,7 +261,7 @@ async def generate_issues(session_id: str, db: Session = Depends(get_db)):
 
     return {
         "issues": [IssueResponse.model_validate(i) for i in issues],
-        "total_precedents": sum(i.frequency for i in issues),
+        "total_precedents": result.get("total_precedents", 0),
     }
 
 

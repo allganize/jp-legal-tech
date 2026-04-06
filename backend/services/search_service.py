@@ -294,6 +294,23 @@ async def search_similar_cases(
     keywords = _extract_keywords(query)
     keyword_cases = _sqlite_keyword_search(db, keywords, limit=30)
 
+    # ── フィルター条件構築 ──
+    def _matches_filters(case: Case) -> bool:
+        if not filters:
+            return True
+        if filters.court_name and case.court_name != filters.court_name:
+            return False
+        if filters.trial_type and case.trial_type != filters.trial_type:
+            return False
+        if case.decision_date:
+            if filters.year_from and case.decision_date.year < filters.year_from:
+                return False
+            if filters.year_to and case.decision_date.year > filters.year_to:
+                return False
+        elif filters.year_from or filters.year_to:
+            return False  # 日付なしのケースはフィルター指定時に除外
+        return True
+
     # ── 結果統合 ──
     seen_ids: set[str] = set()
     cited_chunks: list[CitedChunk] = []
@@ -304,6 +321,8 @@ async def search_similar_cases(
             select(Case).where(Case.case_number.in_(file_search_case_numbers))
         ).scalars().all()
         for case in cases_found:
+            if not _matches_filters(case):
+                continue
             cid = str(case.id)
             if cid not in seen_ids:
                 seen_ids.add(cid)
@@ -319,6 +338,8 @@ async def search_similar_cases(
 
     # SQLiteキーワード検索結果を追加
     for case in keyword_cases:
+        if not _matches_filters(case):
+            continue
         cid = str(case.id)
         if cid not in seen_ids:
             seen_ids.add(cid)
