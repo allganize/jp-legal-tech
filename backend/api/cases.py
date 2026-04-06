@@ -1,9 +1,13 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
 from backend.models import Case
+from backend.services.fact_viz_service import generate_fact_visualizations
 
 router = APIRouter()
 
@@ -40,6 +44,36 @@ def get_case(case_id: str, db: Session = Depends(get_db)):
         "original_case_number": case.original_case_number,
         "judges": judges,
     }
+
+
+@router.post("/{case_id}/visualize")
+async def visualize_facts(case_id: str, db: Session = Depends(get_db)):
+    """判決文の事実セクションからビジュアライゼーションデータを生成（SSE）。"""
+    case = db.get(Case, case_id)
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+    if not case.full_text and not case.gist and not case.case_gist:
+        raise HTTPException(status_code=400, detail="判決文データがありません")
+
+    async def event_stream():
+        try:
+            async for chunk in generate_fact_visualizations(
+                db, case_id, case.full_text or "", case.gist, case.case_gist
+            ):
+                yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
+            yield "data: [DONE]\n\n"
+        except Exception as e:
+            yield f"data: [ERROR] {str(e)}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.get("/{case_id}/related")

@@ -29,6 +29,7 @@ class Case(Base):
     original_court_name: Mapped[str | None] = mapped_column(String)  # 原審裁判所
     original_case_number: Mapped[str | None] = mapped_column(String)  # 原審事件番号
     has_judge_info: Mapped[bool] = mapped_column(Boolean, default=False)
+    fact_viz_json: Mapped[str | None] = mapped_column(Text)  # キャッシュ: AI事実可視化JSON
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
     judges: Mapped[list["CaseJudge"]] = relationship(back_populates="case")

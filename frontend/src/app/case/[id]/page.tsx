@@ -2,6 +2,8 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useParams } from "next/navigation";
+import FactVisualizationPanel from "@/components/case/FactVisualizationPanel";
+import { useI18n } from "@/lib/i18n";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
@@ -68,6 +70,7 @@ export default function CaseDetailPage() {
   const [caseData, setCaseData] = useState<CaseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
+  const { t } = useI18n();
 
   const fetchCase = () => {
     setLoading(true);
@@ -76,18 +79,18 @@ export default function CaseDetailPage() {
     fetch(`${API_BASE}/cases/${caseId}`)
       .then((r) => {
         if (!r.ok) {
-          if (r.status === 404) throw new Error("判例が見つかりません");
-          if (r.status >= 500) throw new Error("サーバーエラーが発生しました");
-          throw new Error("データの取得に失敗しました");
+          if (r.status === 404) throw new Error(t("case.not_found"));
+          if (r.status >= 500) throw new Error(t("case.server_error"));
+          throw new Error(t("case.fetch_error"));
         }
         return r.json();
       })
       .then(setCaseData)
       .catch((e) => {
         if (e instanceof TypeError) {
-          setError("ネットワークエラー");
+          setError(t("case.network_error"));
         } else {
-          setError(e.message || "データの取得に失敗しました");
+          setError(e.message || t("case.fetch_error"));
         }
       })
       .finally(() => setLoading(false));
@@ -122,7 +125,7 @@ export default function CaseDetailPage() {
   }
 
   if (error) {
-    const isRetryable = error !== "判例が見つかりません";
+    const isRetryable = error !== t("case.not_found");
     return (
       <div className="text-center py-20">
         <p className="text-stone-500 mb-4">{error}</p>
@@ -131,14 +134,14 @@ export default function CaseDetailPage() {
             onClick={fetchCase}
             className="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
           >
-            再試行
+            {t("case.retry")}
           </button>
         )}
       </div>
     );
   }
 
-  if (!caseData) return <div className="text-center py-20 text-stone-400">判例が見つかりません</div>;
+  if (!caseData) return <div className="text-center py-20 text-stone-400">{t("case.not_found")}</div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -149,45 +152,35 @@ export default function CaseDetailPage() {
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
-          <MetaItem label="事件番号" value={caseData.case_number} />
-          <MetaItem label="判決日" value={caseData.decision_date} />
-          <MetaItem label="裁判所" value={caseData.court_name} />
-          <MetaItem label="種類" value={caseData.trial_type} />
-          <MetaItem label="裁判形式" value={caseData.result_type} />
-          <MetaItem label="結果" value={caseData.result} />
+          <MetaItem label={t("case.case_number")} value={caseData.case_number} />
+          <MetaItem label={t("case.decision_date")} value={caseData.decision_date} />
+          <MetaItem label={t("case.court")} value={caseData.court_name} />
+          <MetaItem label={t("case.type")} value={caseData.trial_type} />
+          <MetaItem label={t("case.result_type")} value={caseData.result_type} />
+          <MetaItem label={t("case.result")} value={caseData.result} />
           {caseData.original_court_name && (
-            <MetaItem label="原審裁判所" value={caseData.original_court_name} />
+            <MetaItem label={t("case.original_court")} value={caseData.original_court_name} />
           )}
           {caseData.original_case_number && (
-            <MetaItem label="原審事件番号" value={caseData.original_case_number} />
+            <MetaItem label={t("case.original_case")} value={caseData.original_case_number} />
           )}
           {caseData.article_info && (
-            <MetaItem label="掲載" value={caseData.article_info} />
+            <MetaItem label={t("case.article_info")} value={caseData.article_info} />
           )}
         </div>
 
         {/* External links + similar search */}
         <div className="mt-4 flex flex-wrap gap-3">
-          {caseData.detail_page_link && (
-            <a
-              href={caseData.detail_page_link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1.5 text-xs bg-stone-100 text-stone-600 rounded-lg hover:bg-stone-200 transition-colors"
-            >
-              裁判所サイト →
-            </a>
-          )}
-          {caseData.full_pdf_link && (
-            <a
-              href={caseData.full_pdf_link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1.5 text-xs bg-stone-100 text-stone-600 rounded-lg hover:bg-stone-200 transition-colors"
-            >
-              判決文PDF →
-            </a>
-          )}
+          <a
+            href={`https://www.courts.go.jp/hanrei/search1/index.html?text=${encodeURIComponent(
+              caseData.case_number
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 text-xs bg-stone-100 text-stone-600 rounded-lg hover:bg-stone-200 transition-colors"
+          >
+            {t("case.search_court")}
+          </a>
           {(caseData.case_gist || caseData.gist) && (
             <a
               href={`/search?q=${encodeURIComponent(
@@ -195,7 +188,7 @@ export default function CaseDetailPage() {
               )}`}
               className="px-3 py-1.5 text-xs bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors"
             >
-              類似判例を検索 →
+              {t("case.search_similar")}
             </a>
           )}
         </div>
@@ -219,27 +212,32 @@ export default function CaseDetailPage() {
 
       {/* Gist — highlighted with left border */}
       {caseData.gist && (
-        <HighlightSection title="判示事項" content={stripHtml(caseData.gist)} />
+        <HighlightSection title={t("case.gist")} content={stripHtml(caseData.gist)} />
       )}
       {caseData.case_gist && (
-        <HighlightSection title="判決要旨" content={stripHtml(caseData.case_gist)} />
+        <HighlightSection title={t("case.case_gist")} content={stripHtml(caseData.case_gist)} />
       )}
 
       {/* 関連判例 */}
       <RelatedCases caseId={caseData.id} />
 
+      {/* 事実の可視化 */}
+      {(caseData.full_text || caseData.gist || caseData.case_gist) && (
+        <FactVisualizationPanel caseId={caseData.id} />
+      )}
+
       {/* Reference sections */}
       {caseData.ref_law && (
-        <Section title="参照条文" content={stripHtml(caseData.ref_law)} />
+        <Section title={t("case.ref_law")} content={stripHtml(caseData.ref_law)} />
       )}
       {caseData.reference_cases && (
-        <Section title="参照判例" content={stripHtml(caseData.reference_cases)} />
+        <Section title={t("case.ref_cases")} content={stripHtml(caseData.reference_cases)} />
       )}
 
       {/* Full text — with structural formatting */}
       {caseData.full_text && (
         <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-8 md:p-10">
-          <h2 className="text-lg font-semibold text-stone-900 mb-6">判例内容</h2>
+          <h2 className="text-lg font-semibold text-stone-900 mb-6">{t("case.full_text")}</h2>
           <div className="text-[15px] leading-[1.9] font-[350]">
             {formatJudgmentText(stripHtml(caseData.full_text))}
           </div>
@@ -292,6 +290,7 @@ interface RelatedCase {
 function RelatedCases({ caseId }: { caseId: string }) {
   const [related, setRelated] = useState<RelatedCase[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useI18n();
 
   useEffect(() => {
     fetch(`${API_BASE}/cases/${caseId}/related?limit=5`)
@@ -305,7 +304,7 @@ function RelatedCases({ caseId }: { caseId: string }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-200 p-6 md:p-8">
-      <h2 className="text-lg font-semibold text-stone-900 mb-4">関連判例</h2>
+      <h2 className="text-lg font-semibold text-stone-900 mb-4">{t("case.related")}</h2>
       <div className="space-y-3">
         {related.map((r) => (
           <a
