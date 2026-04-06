@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConditionalShell from "@/components/ConditionalShell";
 import { I18nProvider } from "@/lib/i18n";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,9 +31,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ fontFamily: '"Hiragino Kaku Gothic ProN", "Noto Sans JP", var(--font-geist-sans), sans-serif' }}
       >
-        <I18nProvider>
-          <ConditionalShell>{children}</ConditionalShell>
-        </I18nProvider>
+        <AuthProvider>
+          <I18nProvider>
+            <ConditionalShell>{children}</ConditionalShell>
+          </I18nProvider>
+        </AuthProvider>
       </body>
     </html>
   );

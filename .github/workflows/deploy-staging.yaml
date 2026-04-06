@@ -1,0 +1,55 @@
+name: "[jp-legal-tech] Deploy staging"
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-jp-legal-tech-deploy
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.tag.outputs.image_tag }}
+    steps:
+      - name: Generate image tag
+        id: tag
+        run: echo "image_tag=$(date -u +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+  build:
+    needs: prepare
+    uses: ./.github/workflows/_docker-build.yaml
+    with:
+      service_name: jp-legal-tech
+      dockerfile: ops/Dockerfile
+      context: "."
+      image_tag: ${{ needs.prepare.outputs.image_tag }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      SLACK_WEBHOOK_URL_FOR_DEPLOYMENT_NOTICE: ${{ secrets.SLACK_WEBHOOK_URL_FOR_DEPLOYMENT_NOTICE }}
+      SLACK_WEBHOOK_URL_FOR_STAGING: ${{ secrets.SLACK_WEBHOOK_URL_FOR_STAGING }}
+
+  trigger-k8s-update:
+    needs: [prepare, build]
+    if: needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger K8s image update (staging)
+        env:
+          GH_TOKEN: ${{ secrets.ALLGANIZE_OPS_GITHUB_TOKEN }}
+          TAG: ${{ needs.prepare.outputs.image_tag }}
+        run: |
+          gh workflow run update-ai-native-app-image-simple.yml \
+            --repo allganize/saas-helm-charts \
+            --ref main \
+            -f environment=staging-us \
+            -f service=jp-legal-tech \
+            -f tag="$TAG"

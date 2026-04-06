@@ -24,6 +24,13 @@ class Settings(BaseSettings):
     port: int = 8000
     frontend_url: str = "http://localhost:3000"
 
+    # OIDC (Alli) — leave empty to disable OIDC auth
+    oidc_issuer_url: str = ""
+    oidc_client_id: str = ""
+    oidc_client_secret: str = ""
+    oidc_redirect_uri: str = ""
+    session_secret: str = "local-dev-secret-change-me"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 

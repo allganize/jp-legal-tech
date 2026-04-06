@@ -1,0 +1,181 @@
+name: _Docker Build (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      service_name:
+        description: "Image name (e.g., mumbai)"
+        required: true
+        type: string
+      dockerfile:
+        description: "Dockerfile path"
+        required: true
+        type: string
+      context:
+        description: "Build context"
+        required: false
+        default: "."
+        type: string
+      image_tag:
+        description: "Image tag"
+        required: true
+        type: string
+      platforms:
+        description: "Platforms to build (JSON array)"
+        required: false
+        default: '["linux/amd64", "linux/arm64"]'
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      SLACK_WEBHOOK_URL_FOR_DEPLOYMENT_NOTICE:
+        required: true
+      SLACK_WEBHOOK_URL_FOR_STAGING:
+        required: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJson(inputs.platforms) }}
+    runs-on: ${{ matrix.platform == 'linux/arm64' && fromJson('["self-hosted", "Linux", "ARM64"]') || fromJson('["self-hosted", "Linux", "X64"]') }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract platform slug
+        id: platform
+        run: |
+          echo "slug=${PLATFORM#*/}" >> $GITHUB_OUTPUT
+        env:
+          PLATFORM: ${{ matrix.platform }}
+
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
+          platforms: ${{ matrix.platform }}
+          push: true
+          tags: ""
+          cache-from: type=registry,ref=docker.io/allganize/${{ inputs.service_name }}:cache-${{ steps.platform.outputs.slug }}
+          cache-to: type=registry,ref=docker.io/allganize/${{ inputs.service_name }}:cache-${{ steps.platform.outputs.slug }},mode=max
+          outputs: type=image,name=docker.io/allganize/${{ inputs.service_name }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export digest
+        run: |
+          mkdir -p $RUNNER_TEMP/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "$RUNNER_TEMP/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ inputs.service_name }}-${{ steps.platform.outputs.slug }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  push-dockerhub:
+    needs: build
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-${{ inputs.service_name }}-*
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        env:
+          SERVICE_NAME: ${{ inputs.service_name }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          docker buildx imagetools create \
+            --tag "docker.io/allganize/${SERVICE_NAME}:${IMAGE_TAG}" \
+            $(printf "docker.io/allganize/${SERVICE_NAME}@sha256:%s " *)
+
+  notify:
+    needs: [build, push-dockerhub]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack on success
+        if: needs.build.result == 'success' && needs.push-dockerhub.result == 'success'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_STAGING }}
+          SERVICE_NAME: ${{ inputs.service_name }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          PLATFORMS: ${{ inputs.platforms }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          jq -n \
+            --arg service "$SERVICE_NAME" \
+            --arg tag "$IMAGE_TAG" \
+            --arg platforms "$PLATFORMS" \
+            --arg run_url "$RUN_URL" \
+            '{
+              username: "GitHub Actions",
+              icon_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+              attachments: [
+                {
+                  color: "good",
+                  title: "Docker Build Success",
+                  text: ("*" + $service + "* built and pushed successfully\nTag: `" + $tag + "`\nPlatforms: `" + $platforms + "`"),
+                  footer: $run_url
+                }
+              ]
+            }' | curl -sf -X POST "$SLACK_WEBHOOK_URL" \
+              -H 'Content-Type: application/json' \
+              -d @-
+
+      - name: Notify Slack on failure
+        if: needs.build.result == 'failure' || needs.push-dockerhub.result == 'failure'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_DEPLOYMENT_NOTICE }}
+          SERVICE_NAME: ${{ inputs.service_name }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          jq -n \
+            --arg service "$SERVICE_NAME" \
+            --arg tag "$IMAGE_TAG" \
+            --arg run_url "$RUN_URL" \
+            '{
+              username: "GitHub Actions",
+              icon_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+              attachments: [
+                {
+                  color: "danger",
+                  title: "Docker Build Failed",
+                  text: ("*" + $service + "* build failed\nTag: `" + $tag + "`\n\nCheck workflow logs for details."),
+                  footer: $run_url
+                }
+              ]
+            }' | curl -sf -X POST "$SLACK_WEBHOOK_URL" \
+              -H 'Content-Type: application/json' \
+              -d @-

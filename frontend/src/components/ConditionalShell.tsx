@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/contexts/AuthContext";
 
 const NAV_KEYS = [
   { href: "/dashboard", key: "nav.judge" },
@@ -18,6 +19,7 @@ export default function ConditionalShell({
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { locale, setLocale, locales, localeLabels, t } = useI18n();
+  const { user, logout } = useAuth();
 
   if (pathname === "/") {
     return <main>{children}</main>;
@@ -53,6 +55,17 @@ export default function ConditionalShell({
           </div>
 
           <div className="flex items-center gap-2">
+            {user && (
+              <div className="hidden md:flex items-center gap-2">
+                <span className="text-xs text-stone-500">{user.name || user.email}</span>
+                <button
+                  onClick={logout}
+                  className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
             {/* Language dropdown */}
             <select
               value={locale}

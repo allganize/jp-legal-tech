@@ -2,7 +2,7 @@
 name = "jp-legal-tech"
 version = "0.1.0"
 description = "日本向け裁判官判決傾向AI分析ダッシュボード"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.30.0",
@@ -13,6 +13,9 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "anthropic>=0.40.0",
     "google-genai>=1.0.0",
+    "authlib>=1.6.0",
+    "itsdangerous>=2.2.0",
+    "httpx>=0.27.0",
 ]
 
 [project.optional-dependencies]
