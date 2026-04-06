@@ -16,6 +16,20 @@ else
     echo "[entrypoint] Database exists: $(du -h "$DB_PATH" | cut -f1)"
 fi
 
-# Start FastAPI (serves both API and frontend static files)
-echo "[entrypoint] Starting uvicorn on port ${PORT:-8000}..."
-exec uv run uvicorn backend.main:app --host 0.0.0.0 --port "${PORT:-8000}"
+# Start FastAPI backend (internal, port 8001)
+echo "[entrypoint] Starting FastAPI on port 8001..."
+uv run uvicorn backend.main:app --host 127.0.0.1 --port 8001 &
+
+# Wait for FastAPI to be ready
+for i in $(seq 1 30); do
+    if curl -sf http://127.0.0.1:8001/api/health > /dev/null 2>&1; then
+        echo "[entrypoint] FastAPI is ready"
+        break
+    fi
+    sleep 1
+done
+
+# Start Next.js frontend (exposed, port 8000)
+echo "[entrypoint] Starting Next.js on port 8000..."
+cd /app/frontend-standalone
+exec node server.js

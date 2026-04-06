@@ -1,11 +1,11 @@
-# Stage 1: Build frontend (Next.js static export)
+# Stage 1: Build frontend (Next.js standalone)
 FROM node:22-alpine AS frontend-build
 
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
-ENV NEXT_PUBLIC_API_URL="/api"
+ENV NEXT_PUBLIC_API_URL=""
 RUN npm run build
 
 # Stage 2: Python backend (alpine + uv)
@@ -13,12 +13,12 @@ FROM python:3.12-alpine AS base
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+# Install curl (healthcheck) + Node.js runtime (Next.js standalone)
+RUN apk add --no-cache curl bash nodejs
+
 WORKDIR /app
 
-# Install curl for DB download + healthcheck
-RUN apk add --no-cache curl bash
-
-# Dependencies first (layer caching)
+# Python dependencies (layer caching)
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
 
@@ -26,8 +26,10 @@ RUN uv sync --frozen --no-dev
 COPY backend/ ./backend/
 COPY scripts/ ./scripts/
 
-# Frontend static export
-COPY --from=frontend-build /app/frontend/out ./frontend/out/
+# Next.js standalone build
+COPY --from=frontend-build /app/frontend/.next/standalone/frontend ./frontend-standalone/
+COPY --from=frontend-build /app/frontend/.next/static ./frontend-standalone/.next/static/
+COPY --from=frontend-build /app/frontend/public ./frontend-standalone/public/
 
 # Data directory for SQLite DB
 RUN mkdir -p /app/data
@@ -35,6 +37,6 @@ RUN mkdir -p /app/data
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8000/api/health || exit 1
+    CMD curl -f http://localhost:8001/api/health || exit 1
 
 CMD ["bash", "scripts/entrypoint.sh"]
