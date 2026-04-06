@@ -44,6 +44,8 @@ jobs:
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      SLACK_WEBHOOK_URL_FOR_DEPLOYMENT_NOTICE: ${{ secrets.SLACK_WEBHOOK_URL_FOR_DEPLOYMENT_NOTICE }}
+      SLACK_WEBHOOK_URL_FOR_STAGING: ${{ secrets.SLACK_WEBHOOK_URL_FOR_STAGING }}
 
   # ---------------------------------------------------------------------------
   # Trigger K8s image update for staging
